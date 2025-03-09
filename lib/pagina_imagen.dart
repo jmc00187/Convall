@@ -34,6 +34,8 @@ class _paginaImagenState extends State<paginaImagen> {
   int? _altoOriginal;
   int? _anchoOriginal;
   String? _filename = '';
+  int? _altoModificado = -1;
+  int? _anchoModificado = -1;
 
 
 
@@ -55,6 +57,7 @@ class _paginaImagenState extends State<paginaImagen> {
       // Detectar el formato real
       List<int> headerBytes = await file.openRead(0, 12).first;
       _imageFormat = _identifyImageFormat(headerBytes);
+      _outputFormat = _imageFormat;
 
 
       setState(() {
@@ -88,45 +91,63 @@ class _paginaImagenState extends State<paginaImagen> {
     return "Desconocido";
   }
 
-  Future<List<int>> changeFormat(List<int> inputBytes, String outputFormat) async {
+  Future<List<int>> changeFormatAndResolution(List<int> inputBytes) async {
 
     List<int> outputBytes = [];
     img.Image? image = img.decodeImage(Uint8List.fromList(inputBytes));
     Uint8List uint8List = Uint8List.fromList(inputBytes);
 
-
-    switch (outputFormat.toLowerCase()) {
-      case 'png':
-        outputBytes = img.encodePng(image!);
-        break;
-      case 'jpeg':
-        outputBytes = img.encodeJpg(image!);
-        break;
-      case 'gif':
-        outputBytes = img.encodeGif(image!);
-        break;
-      case 'bmp':
-        outputBytes = img.encodeBmp(image!);
-        break;
-      case 'webp':
-        outputBytes = await FlutterImageCompress.compressWithList(
-          uint8List,
-          format: CompressFormat.webp,
-          quality: 100,
-        );
-        break;
-      case 'tiff':
-        outputBytes = img.encodeTiff(image!);
-        break;
-      default:
-        print("Formato de salida no soportado.");
+    int? alto2 = _altoOriginal, ancho2 = _anchoOriginal;
+    if(_altoModificado != -1)
+    {
+        alto2 = _altoModificado;
     }
+    if(_anchoModificado != -1)
+    {
+        ancho2 = _anchoModificado;
+    }
+    if(_altoModificado != -1 || _anchoModificado != -1)
+    {
+        image = img.copyResize(image!, height: alto2!, width: ancho2!);
+    }
+
+    if(_outputFormat != _imageFormat)
+      {
+        switch (_outputFormat!.toLowerCase()) {
+          case 'png':
+            outputBytes = img.encodePng(image!);
+            break;
+          case 'jpeg':
+            outputBytes = img.encodeJpg(image!);
+            break;
+          case 'gif':
+            outputBytes = img.encodeGif(image!);
+            break;
+          case 'bmp':
+            outputBytes = img.encodeBmp(image!);
+            break;
+          case 'webp':
+            outputBytes = await FlutterImageCompress.compressWithList(
+              uint8List,
+              format: CompressFormat.webp,
+              quality: 100,
+            );
+            break;
+          case 'tiff':
+            outputBytes = img.encodeTiff(image!);
+            break;
+          default:
+            print("Formato de salida no soportado.");
+        }
+      }
+
 
     return outputBytes;
 
   }
 
-  Future<void> convertImage(String inputPath, String outputFormat) async {
+
+  Future<void> convertImage(String inputPath) async {
 
     File inputFile = File(inputPath);
     List<int> inputBytes = await inputFile.readAsBytes();
@@ -134,15 +155,13 @@ class _paginaImagenState extends State<paginaImagen> {
 
     List<int> outputBytes = [];
 
-    //CAMBIO DE FORMATO --------------------------------------------------------
-    if(outputFormat.toLowerCase() != _imageFormat!.toLowerCase())
-    {
-        outputBytes = await changeFormat(inputBytes, outputFormat);
-    }
+    //CAMBIAR RESOLUCION Y FORMATO ---------------------------------------------
+    outputBytes = await changeFormatAndResolution(inputBytes);
+
 
     // Guardar la imagen convertida en el cache de la aplicaicon
     final directory = await getApplicationCacheDirectory();
-    final outputPath = '${directory.path}/converted_image.$outputFormat';
+    final outputPath = '${directory.path}/converted_image.$_outputFormat';
     File(outputPath).writeAsBytes(outputBytes);
     setState(() {
       _convertedImagePath = outputPath; // Ruta de la imagen convertida
@@ -405,6 +424,11 @@ class _paginaImagenState extends State<paginaImagen> {
                                                   decoration: InputDecoration(
                                                     hintText: '${_altoOriginal.toString()}',
                                                   ),
+                                                  onChanged: (value) {
+                                                  setState(() {
+                                                    _altoModificado = int.tryParse(value);
+                                                  });
+                                                },
                                                 ),
                                               ),
                                             ],
@@ -437,6 +461,11 @@ class _paginaImagenState extends State<paginaImagen> {
                                                   decoration: InputDecoration(
                                                     hintText: '${_anchoOriginal.toString()}',
                                                   ),
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                  _anchoModificado = int.tryParse(value);
+                                                  });
+                                                },
                                                 ),
                                               ),
                                             ],
@@ -455,7 +484,7 @@ class _paginaImagenState extends State<paginaImagen> {
 
                             ElevatedButton(
                               onPressed: (_selectedFilePath != null && _outputFormat != null)
-                                  ? () => convertImage(_selectedFilePath!, _outputFormat!)
+                                  ? () => convertImage(_selectedFilePath!)
                                   : null,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Flame,
