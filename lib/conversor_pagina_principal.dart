@@ -20,7 +20,7 @@ class _ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
   static const Color BlackOlive = Color(0xFF403D39);
   static const Color EerieBlack = Color(0xFF252422);
   static const Color Flame = Color(0xFFEB5E28);
-  // 8
+
 
   int _selectedIndex = 0; //Pagina seleccionada
 

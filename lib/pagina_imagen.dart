@@ -40,7 +40,7 @@ class _paginaImagenState extends State<paginaImagen> {
 
 
   // Lista de formatos soportados
-  List<String> _outputFormats = ['JPEG', 'PNG', 'GIF', 'BMP', 'WEBP', 'TIFF'];
+  List<String> _outputFormats = ['JPEG', 'PNG', 'GIF', 'BMP', 'WEBP'];
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
@@ -83,9 +83,6 @@ class _paginaImagenState extends State<paginaImagen> {
     } else if ((bytes[0] == 0x00 && bytes[1] == 0x00 && bytes[2] == 0x00 && bytes[3] == 0x18) ||
         (bytes[0] == 0x00 && bytes[1] == 0x00 && bytes[2] == 0x00 && bytes[3] == 0x1C)) {
       return "HEIC";
-    } else if ((bytes[0] == 0x49 && bytes[1] == 0x49 && bytes[2] == 0x2A && bytes[3] == 0x00) ||
-        (bytes[0] == 0x4D && bytes[1] == 0x4D && bytes[2] == 0x00 && bytes[3] == 0x2A)) {
-      return "TIFF";
     }
 
     return "Desconocido";
@@ -111,35 +108,31 @@ class _paginaImagenState extends State<paginaImagen> {
         image = img.copyResize(image!, height: alto2!, width: ancho2!);
     }
 
-    if(_outputFormat != _imageFormat)
-      {
-        switch (_outputFormat!.toLowerCase()) {
-          case 'png':
-            outputBytes = img.encodePng(image!);
-            break;
-          case 'jpeg':
-            outputBytes = img.encodeJpg(image!);
-            break;
-          case 'gif':
-            outputBytes = img.encodeGif(image!);
-            break;
-          case 'bmp':
-            outputBytes = img.encodeBmp(image!);
-            break;
-          case 'webp':
-            outputBytes = await FlutterImageCompress.compressWithList(
-              uint8List,
-              format: CompressFormat.webp,
-              quality: 100,
-            );
-            break;
-          case 'tiff':
-            outputBytes = img.encodeTiff(image!);
-            break;
-          default:
-            print("Formato de salida no soportado.");
-        }
-      }
+
+    switch (_outputFormat!.toLowerCase()) {
+      case 'png':
+        outputBytes = img.encodePng(image!);
+        break;
+      case 'jpeg':
+        outputBytes = img.encodeJpg(image!);
+        break;
+      case 'gif':
+        outputBytes = img.encodeGif(image!);
+        break;
+      case 'bmp':
+        outputBytes = img.encodeBmp(image!);
+        break;
+      case 'webp':
+        outputBytes = await FlutterImageCompress.compressWithList(
+          uint8List,
+          format: CompressFormat.webp,
+          quality: 100,
+        );
+        break;
+      default:
+        print("Formato de salida no soportado.");
+    }
+
 
 
     return outputBytes;
@@ -301,13 +294,13 @@ class _paginaImagenState extends State<paginaImagen> {
                                 builder: (context, constraints) {
                                   return ConstrainedBox(
                                     constraints: const BoxConstraints(
-                                      maxWidth: 400, // Límite máximo de ancho
-                                      maxHeight: 400, // Límite máximo de altura
+                                      maxWidth: 400,
+                                      maxHeight: 400,
+                                      minHeight: 200,
+                                      minWidth: 200,
                                     ),
-                                    child: Image.file(
-                                      File(_selectedFilePath!),
-                                      fit: BoxFit.contain, // Mantiene el formato original
-                                    ),
+                                    //child: showImage(_selectedFilePath!, 'input'),
+                                    child: Image.file(File(_selectedFilePath!), fit: BoxFit.contain)
                                   );
                                 },
                               ),
@@ -520,13 +513,12 @@ class _paginaImagenState extends State<paginaImagen> {
                                   builder: (context, constraints) {
                                     return ConstrainedBox(
                                       constraints: const BoxConstraints(
-                                        maxWidth: 400, // Límite máximo de ancho
-                                        maxHeight: 400, // Límite máximo de altura
+                                        maxWidth: 400,
+                                        maxHeight: 400,
+                                        minHeight: 200,
+                                        minWidth: 200,
                                       ),
-                                      child: Image.file(
-                                        File(_convertedImagePath!),
-                                        fit: BoxFit.contain, // Mantiene el formato original
-                                      ),
+                                      child: Image.file(File(_convertedImagePath!), fit: BoxFit.contain)
                                     );
                                   },
                                 ),
