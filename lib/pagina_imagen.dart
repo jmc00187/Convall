@@ -36,6 +36,7 @@ class _paginaImagenState extends State<paginaImagen> {
   String? _filename = '';
   int? _altoModificado = -1;
   int? _anchoModificado = -1;
+  double? _pngLevel = 6;
 
 
 
@@ -111,7 +112,7 @@ class _paginaImagenState extends State<paginaImagen> {
 
     switch (_outputFormat!.toLowerCase()) {
       case 'png':
-        outputBytes = img.encodePng(image!);
+        outputBytes = img.encodePng(image!, level: _pngLevel!.toInt());
         break;
       case 'jpeg':
         outputBytes = img.encodeJpg(image!);
@@ -366,6 +367,65 @@ class _paginaImagenState extends State<paginaImagen> {
                               },
                             ),
 
+                            if(_outputFormat == 'PNG') ...[
+
+                              const SizedBox(height: 20),
+
+                              Container(
+                                width: double.infinity,
+                                padding: EdgeInsets.all(16.0),
+                                decoration: BoxDecoration(
+                                  color: Timberwolf,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+
+                                child: Column(
+                                  children: [
+
+                                    Text(
+                                      'Nivel de compresión',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontFamily: 'SF-ProText-Heavy',
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 20),
+
+                                    Slider(
+                                      value: _pngLevel!,
+                                      year2023: false,
+                                      min: -1,
+                                      max: 9,
+                                      divisions: 100,
+                                      label: _pngLevel?.toInt().toString(),
+                                      onChanged: (double value) {
+                                        setState(() {
+                                          _pngLevel = value;
+                                        });
+                                      },
+                                      activeColor: Flame,
+                                      inactiveColor: BlackOlive,
+                                      //thumbColor: Colors.transparent,
+                                      overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                                            (Set<MaterialState> states) {
+                                          if (states.contains(MaterialState.pressed)) {
+                                            // Si está presionado, usa un color semitransparente
+                                            return Colors.transparent;
+                                          }
+                                          return Colors.transparent; // Sin color cuando no está presionado
+                                        },
+                                      ),
+
+                                    ),
+                                  ],
+                                )
+                              ),
+                            ],
+
+
                             const SizedBox(height: 20),
 
                             Container(
@@ -381,9 +441,9 @@ class _paginaImagenState extends State<paginaImagen> {
                                   Text(
                                     'Resolución',
                                     style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 18,
                                         fontFamily: 'SF-ProText-Heavy',
-                                        fontWeight: FontWeight.w600,
+                                        fontWeight: FontWeight.w800,
                                       color: Colors.grey.shade700,
                                     ),
                                   ),
