@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:exif/exif.dart';
 
 class paginaImagen extends StatefulWidget {
   const paginaImagen({super.key});
@@ -37,6 +38,10 @@ class _paginaImagenState extends State<paginaImagen> {
   int? _altoModificado = -1;
   int? _anchoModificado = -1;
   double? _pngLevel = 6;
+  double? _jpgQuality = 100;
+  double? _gifQuality = 10;
+  double? _webpQuality = 100;
+  ExifData? _exifData;
 
 
 
@@ -60,6 +65,9 @@ class _paginaImagenState extends State<paginaImagen> {
       _imageFormat = _identifyImageFormat(headerBytes);
       _outputFormat = _imageFormat;
 
+      _exifData = imageData.exif as ExifData?;
+
+
 
       setState(() {
         _selectedFilePath = image.path;
@@ -81,9 +89,6 @@ class _paginaImagenState extends State<paginaImagen> {
       return "BMP";
     } else if (bytes[0] == 0x52 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x46) {
       return "WEBP";
-    } else if ((bytes[0] == 0x00 && bytes[1] == 0x00 && bytes[2] == 0x00 && bytes[3] == 0x18) ||
-        (bytes[0] == 0x00 && bytes[1] == 0x00 && bytes[2] == 0x00 && bytes[3] == 0x1C)) {
-      return "HEIC";
     }
 
     return "Desconocido";
@@ -115,10 +120,10 @@ class _paginaImagenState extends State<paginaImagen> {
         outputBytes = img.encodePng(image!, level: _pngLevel!.toInt());
         break;
       case 'jpeg':
-        outputBytes = img.encodeJpg(image!);
+        outputBytes = img.encodeJpg(image!, quality: _jpgQuality!.toInt());
         break;
       case 'gif':
-        outputBytes = img.encodeGif(image!);
+        outputBytes = img.encodeGif(image!, samplingFactor: _gifQuality!.toInt());
         break;
       case 'bmp':
         outputBytes = img.encodeBmp(image!);
@@ -127,7 +132,7 @@ class _paginaImagenState extends State<paginaImagen> {
         outputBytes = await FlutterImageCompress.compressWithList(
           uint8List,
           format: CompressFormat.webp,
-          quality: 100,
+          quality: _webpQuality!.toInt(),
         );
         break;
       default:
@@ -139,6 +144,7 @@ class _paginaImagenState extends State<paginaImagen> {
     return outputBytes;
 
   }
+
 
 
   Future<void> convertImage(String inputPath) async {
@@ -182,7 +188,6 @@ class _paginaImagenState extends State<paginaImagen> {
         Directory? directory = await getDownloadsDirectory();
 
         if (directory != null)
-
         {
           String filePath = '${directory.path}/$_filename';
           File file = File(_convertedImagePath!);
@@ -397,9 +402,9 @@ class _paginaImagenState extends State<paginaImagen> {
                                     Slider(
                                       value: _pngLevel!,
                                       year2023: false,
-                                      min: -1,
+                                      min: 0,
                                       max: 9,
-                                      divisions: 100,
+                                      divisions: 9,
                                       label: _pngLevel?.toInt().toString(),
                                       onChanged: (double value) {
                                         setState(() {
@@ -424,6 +429,222 @@ class _paginaImagenState extends State<paginaImagen> {
                                 )
                               ),
                             ],
+
+                            if(_outputFormat == 'JPEG') ...[
+
+                              const SizedBox(height: 20),
+
+                              Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.all(16.0),
+                                  decoration: BoxDecoration(
+                                    color: Timberwolf,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+
+                                  child: Column(
+                                    children: [
+
+                                      Text(
+                                        'Calidad del JPEG',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontFamily: 'SF-ProText-Heavy',
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.grey.shade700,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 20),
+
+                                      Slider(
+                                        value: _jpgQuality!,
+                                        year2023: false,
+                                        min: 0,
+                                        max: 100,
+                                        divisions: 100,
+                                        label: _jpgQuality?.toInt().toString(),
+                                        onChanged: (double value) {
+                                          setState(() {
+                                            _jpgQuality = value;
+                                          });
+                                        },
+                                        activeColor: Flame,
+                                        inactiveColor: BlackOlive,
+                                        //thumbColor: Colors.transparent,
+                                        overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                                              (Set<MaterialState> states) {
+                                            if (states.contains(MaterialState.pressed)) {
+                                              // Si está presionado, usa un color semitransparente
+                                              return Colors.transparent;
+                                            }
+                                            return Colors.transparent; // Sin color cuando no está presionado
+                                          },
+                                        ),
+
+                                      ),
+                                    ],
+                                  )
+                              ),
+                            ],
+
+                            if(_outputFormat == 'GIF') ...[
+
+                              const SizedBox(height: 20),
+
+                              Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.all(16.0),
+                                  decoration: BoxDecoration(
+                                    color: Timberwolf,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+
+                                  child: Column(
+                                    children: [
+
+                                      Text(
+                                        'Compresion del GIF',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontFamily: 'SF-ProText-Heavy',
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.grey.shade700,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 20),
+
+                                      Slider(
+                                        value: _gifQuality!,
+                                        year2023: false,
+                                        min: 0,
+                                        max: 30,
+                                        divisions: 30,
+                                        label: _gifQuality?.toInt().toString(),
+                                        onChanged: (double value) {
+                                          setState(() {
+                                            _gifQuality = value;
+                                          });
+                                        },
+                                        activeColor: Flame,
+                                        inactiveColor: BlackOlive,
+                                        //thumbColor: Colors.transparent,
+                                        overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                                              (Set<MaterialState> states) {
+                                            if (states.contains(MaterialState.pressed)) {
+                                              // Si está presionado, usa un color semitransparente
+                                              return Colors.transparent;
+                                            }
+                                            return Colors.transparent; // Sin color cuando no está presionado
+                                          },
+                                        ),
+
+                                      ),
+                                    ],
+                                  )
+                              ),
+                            ],
+
+                            if(_outputFormat == 'WEBP') ...[
+
+                              const SizedBox(height: 20),
+
+                              Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.all(16.0),
+                                  decoration: BoxDecoration(
+                                    color: Timberwolf,
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+
+                                  child: Column(
+                                    children: [
+
+                                      Text(
+                                        'Calidad del WEBP',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontFamily: 'SF-ProText-Heavy',
+                                          fontWeight: FontWeight.w800,
+                                          color: Colors.grey.shade700,
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 20),
+
+                                      Slider(
+                                        value: _webpQuality!,
+                                        year2023: false,
+                                        min: 0,
+                                        max: 100,
+                                        divisions: 100,
+                                        label: _webpQuality?.toInt().toString(),
+                                        onChanged: (double value) {
+                                          setState(() {
+                                            _webpQuality = value;
+                                          });
+                                        },
+                                        activeColor: Flame,
+                                        inactiveColor: BlackOlive,
+                                        //thumbColor: Colors.transparent,
+                                        overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                                              (Set<MaterialState> states) {
+                                            if (states.contains(MaterialState.pressed)) {
+                                              // Si está presionado, usa un color semitransparente
+                                              return Colors.transparent;
+                                            }
+                                            return Colors.transparent; // Sin color cuando no está presionado
+                                          },
+                                        ),
+
+                                      ),
+                                    ],
+                                  )
+                              ),
+                            ],
+
+                            Card(
+                              elevation: 4,
+                              child: ExpansionTile(
+                                title: Text(
+                                  'Metadatos',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontFamily: 'SF-ProText-Heavy',
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                ),
+                                children: _exifData!.tags.map((entry) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(entry.key, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                                        SizedBox(
+                                          width: 150,
+                                          child: TextFormField(
+                                            initialValue: entry.value.toString(),
+                                            decoration: InputDecoration(
+                                              border: OutlineInputBorder(),
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                                            ),
+                                            onChanged: (newValue) {
+                                              setState(() {
+                                                _exifData![entry.key] = newValue;
+                                              });
+                                            },
+                                          ),
+
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
 
 
                             const SizedBox(height: 20),
@@ -537,7 +758,9 @@ class _paginaImagenState extends State<paginaImagen> {
 
                             ElevatedButton(
                               onPressed: (_selectedFilePath != null && _outputFormat != null)
-                                  ? () => convertImage(_selectedFilePath!)
+                                  ? () {
+                                    convertImage(_selectedFilePath!);
+                                    }
                                   : null,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Flame,
