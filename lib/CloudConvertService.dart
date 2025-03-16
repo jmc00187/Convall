@@ -1,35 +1,66 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
 
 class CloudConvertService {
   final String apiKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMThmYzk4NTkwMzFlYTE4ODE4OTExOTYyODZhMWZlMTQwYmM2N2Y1OGY2ZmJiMTJhMGVlY2Y5OGVkOTExMjljYjJiODIwZTdiMGViMDM1ZTMiLCJpYXQiOjE3NDIxNjAyNzIuOTM1NzQsIm5iZiI6MTc0MjE2MDI3Mi45MzU3NDEsImV4cCI6NDg5NzgzMzg3Mi45MzE3NjYsInN1YiI6IjcxMzUyODQ2Iiwic2NvcGVzIjpbInByZXNldC53cml0ZSIsInByZXNldC5yZWFkIiwid2ViaG9vay53cml0ZSIsIndlYmhvb2sucmVhZCIsInRhc2sud3JpdGUiLCJ0YXNrLnJlYWQiLCJ1c2VyLndyaXRlIiwidXNlci5yZWFkIl19.io2qpe2WCKPgWXx0fRq3clN5vbljaAyZA0j1iJreBBemJoCbYWhaWo-nhQ9puWPa-zbBnQJ6FqrodxwrtiTZveUQbXIoOI1GArnNwa8m861-XbJtGUq_dzrpmocatsTlaZIFSAj51HousWBu-olTaz00GrI4KBKfnguYdBNer-JqcWIObOwcfHJAWIoS1Lg82-lbA7FTb-CV6qJp8PL2EN0HQVx_dMvm5cXpybc33zDAVmH44NVD30fIwK_rTp70Ku0L4FiLooaQIZ3_jU5whB-emo390Keu8IHP3vjCilKjY--31zIifq1VOxRtRAxtH8qD0W86l0vuoXUmsrEYzvRdemsGhYygKnfh2AKr-schcXFjk27dohur7Wxf2ubtTaKq4koPSuQ4ha7dekXoqCEOhwZpxoDo5KBJKwpjPQEeaTHtrVONj8d7_L0zDlaGJq-8gkGa6fqjeqkE5oZFFzQf-14WG99-UC9M9jJgYJEDR31xOqzzcKEddzi447guEMIsrpUNrGsRfw6RoTR7Ej8_sor0rQjb0hUT1QTgBWWivcGRP4cHVn4o4W3ftPKDCiylDATUq1roHxWXpZ3jIO2LXp_yVa5_PC_Nlm6fguGd-_fESxn_Yf4j2efiHCP7saKsHXln8OV0nycFZzNfT6aMC4GYaJ-IKEy1MbmrfaQ';
 
-  Future<void> videoConvert(File videoFile) async {
+  Future<void> fileUpload(File file) async {
 
-    try{
+    try {
+      // Paso 1: Obtener la URL de subida
       var url = Uri.parse('https://api.cloudconvert.com/v2/import/upload');
-      var request = http.MultipartRequest('POST', url)
-        ..headers['Authorization'] = 'Bearer $apiKey'
-        ..files.add(await http.MultipartFile.fromPath('file', videoFile.path));
+      var response = await http.post(
+        url,
+        headers: {'Authorization': 'Bearer $apiKey'},
+      );
 
-      var response = await request.send();
-
-      if (response.statusCode == 200) {
-
-        var responseBody = await response.stream.bytesToString();
-        var responseJson = json.decode(responseBody);
-
-        String fileId = responseJson['data']['id'];
-        print('Archivo subido con ID: $fileId');
-
-
-        await fileConvert(fileId);
-
-      } else {
-        print('Error al subir archivo: ${response.statusCode}');
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        print('Error al obtener la URL de subida: ${response.statusCode}');
+        print('Respuesta completa: ${response.body}');
+        return;
       }
 
+      var responseJson = json.decode(response.body);
+      if (responseJson['data'] == null || responseJson['data']['result'] == null) {
+        print('Error: No se recibió la información de subida.');
+        print('Respuesta completa: ${response.body}');
+        return;
+      }
+
+      // Obtener la URL de subida y los parámetros de AWS S3
+      String uploadUrl = responseJson['data']['result']['form']['url'];
+      Map<String, dynamic> parameters = responseJson['data']['result']['form']['parameters'];
+
+      print('URL de subida: $uploadUrl');
+      print('Parámetros de subida: $parameters');
+
+      // Paso 2: Subir el archivo a la URL de S3 con los parámetros requeridos
+      var request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
+
+      // Agregar parámetros como campos del formulario
+      parameters.forEach((key, value) {
+        request.fields[key] = value.toString();
+      });
+
+      // Agregar el archivo
+      request.files.add(await http.MultipartFile.fromPath('file', file.path));
+
+      var uploadResponse = await request.send();
+
+      if (uploadResponse.statusCode == 201) {
+        print('Archivo subido correctamente.');
+
+        // Paso 3: Obtener el ID del archivo subido
+        String fileId = responseJson['data']['id'];
+
+        // Paso 4: Iniciar conversión con el fileId
+        await fileConvert(fileId);
+      } else {
+        print('Error al subir el archivo a S3: ${uploadResponse.statusCode}');
+      }
     } catch (e) {
       print('Error: $e');
     }
@@ -42,7 +73,8 @@ class CloudConvertService {
       var url = Uri.parse('https://api.cloudconvert.com/v2/convert');
       var body = json.encode({
         'input': {'file': fileId},
-        'output_format': 'mp4', // Puedes cambiar a otro formato como .avi, .mov, etc.
+        'output_format': 'avi', // Puedes cambiar a otro formato como .avi, .mov, etc.
+        'autostart': true
       });
 
       var response = await http.post(
@@ -54,7 +86,7 @@ class CloudConvertService {
         body: body,
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         var responseJson = json.decode(response.body);
         String taskId = responseJson['data']['id'];
         print('Tarea de conversión creada con ID: $taskId');
@@ -82,11 +114,13 @@ class CloudConvertService {
       if (response.statusCode == 200) {
         var responseJson = json.decode(response.body);
         String status = responseJson['data']['status'];
+        print('Respuesta completa: ${response.body}');
 
         if (status == 'finished') {
           print('Conversión completada.');
 
-          // CODIGO PARA DESCARGAR EL ARCHIVO
+          String fileId = responseJson['data']['result']['files'][0]['id'];
+          obtenerUrlDescarga(fileId['0'][0']);
 
         } else if (status == 'failed') {
           print('La conversión falló.');
@@ -103,4 +137,61 @@ class CloudConvertService {
       print('Error: $e');
     }
   }
+
+  Future<void> downloadFile(String url) async {
+    try {
+      Dio dio = Dio();
+      Directory? tempDir = await getDownloadsDirectory();
+      String filePath = '${tempDir!.path}/video_convertido.avi';
+
+      print('Descargando archivo en: $filePath');
+
+      await dio.download(url, filePath, onReceiveProgress: (received, total) {
+        if (total != -1) {
+          print('Descarga en progreso: ${(received / total * 100).toStringAsFixed(0)}%');
+        }
+      });
+
+      print('Descarga completada. Archivo guardado en: $filePath');
+    } catch (e) {
+      print('Error al descargar el archivo: $e');
+    }
+  }
+
+  Future<void> obtenerUrlDescarga(String fileId) async {
+    var url = Uri.parse('https://api.cloudconvert.com/v2/export/url');
+
+    // Cuerpo de la solicitud POST
+    var body = json.encode({
+      "input": fileId,
+      "archive_multiple_files": false,
+    });
+
+    var response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/json',
+      },
+      body: body,
+    );
+
+    if (response.statusCode == 200) {
+      var responseJson = json.decode(response.body);
+      if (responseJson['data'] != null && responseJson['data']['url'] != null) {
+        String downloadUrl = responseJson['data']['url'];
+        print('URL de descarga: $downloadUrl');
+        downloadFile(downloadUrl);
+      } else {
+        print('Error: No se encontró la URL de descarga en la respuesta.');
+      }
+    } else {
+      print('Error al obtener la URL de descarga: ${response.statusCode}');
+      print('Respuesta completa: ${response.body}');
+    }
+    
+  }
+
 }
+
+

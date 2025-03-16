@@ -3,6 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:video_player/video_player.dart';
 import 'dart:typed_data';
+import 'CloudConvertService.dart';
 
 class paginaVideo extends StatefulWidget {
   const paginaVideo({super.key});
@@ -20,10 +21,13 @@ class _paginaVideoState extends State<paginaVideo> {
   static const Color Flame = Color(0xFFEB5E28);
 
 
+  File? _videoFile;
   String? _selectedFilePath;
   String? _videoFormat;
   VideoPlayerController? _videoController;
 
+
+  List<String> _outputFormats = ['mp4', 'avi', 'webm', 'mkv', 'flv'];
 
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.video);
@@ -37,10 +41,23 @@ class _paginaVideoState extends State<paginaVideo> {
         ..initialize().then((_) {
           setState(() {
             _selectedFilePath = filePath;
+            _videoFile = File(filePath);
           });
         });
     }
 
+  }
+
+  void _convertVideo()
+  {
+    if(_videoFile != null)
+    {
+      CloudConvertService().fileUpload(_videoFile!);
+    }
+    else
+    {
+      print('No se ha seleccionado un archivo de video');
+    }
   }
 
   Future<String> _identifyVideoFormat(String filepath) async {
@@ -52,15 +69,6 @@ class _paginaVideoState extends State<paginaVideo> {
       'avi': [0x52, 0x49, 0x46, 0x46],
       'webm/mkv': [0x1A, 0x45, 0xDF, 0xA3],
       'flv': [0x46, 0x4C, 0x56, 0x01],
-      'mpeg-2': [0x00, 0x00, 0x01, 0xBA],
-      'mpeg-1': [0x00, 0x00, 0x01, 0xB3],
-      'wmv': [0x30, 0x26, 0xB2, 0x75, 0x8E, 0x66, 0xCF, 0x11],
-      '3gp': [0x66, 0x74, 0x79, 0x70, 0x33, 0x67],
-      'rm': [0x2E, 0x52, 0x4D, 0x46],
-      'ogg': [0x4F, 0x67, 0x67, 0x53],
-      'asf': [0x30, 0x26, 0xB2, 0x75, 0x8E, 0x66, 0xCF, 0x11],
-      'ts': [0x47, 0x40, 0x00, 0x00],
-      'vob': [0x00, 0x00, 0x01, 0xBD],
     };
 
     for (var formato in firmasDeVideo.keys) {
@@ -179,6 +187,30 @@ class _paginaVideoState extends State<paginaVideo> {
                           ),
                         ),
                       ),
+
+                      const SizedBox(height: 20),
+
+                      ElevatedButton(
+                        onPressed: _convertVideo,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: BlackOlive,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 30),
+                          elevation: 2,
+                        ),
+                        child: const Text(
+                          'DESCARGAR',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white, // Texto en blanco para buen contraste
+                            fontFamily: 'SF-ProText-Heavy', // Mismo estilo que otros textos
+                          ),
+                        ),
+                      ),
+
 
 
 
