@@ -43,6 +43,7 @@ dependencies:
   path_provider: ^2.0.2
   permission_handler: ^11.4.0
   exif: ^3.3.0
+  flutter_ffmpeg: ^0.4.2
 
 dev_dependencies:
   flutter_test:

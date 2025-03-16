@@ -60,7 +60,7 @@ class _paginaImagenState extends State<paginaImagen> {
       _altoOriginal = imageData!.height;
       _anchoOriginal = imageData!.width;
 
-      // Detectar el formato real
+
       List<int> headerBytes = await file.openRead(0, 12).first;
       _imageFormat = _identifyImageFormat(headerBytes);
       _outputFormat = _imageFormat;
@@ -306,7 +306,6 @@ class _paginaImagenState extends State<paginaImagen> {
                                       minHeight: 200,
                                       minWidth: 200,
                                     ),
-                                    //child: showImage(_selectedFilePath!, 'input'),
                                     child: Image.file(File(_selectedFilePath!), fit: BoxFit.contain)
                                   );
                                 },
