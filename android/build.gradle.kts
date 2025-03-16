@@ -2,6 +2,8 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+        maven( url = "https://dl.bintray.com/arthenica/ffmpeg-kit" )
+        maven(url = "https://dl.bintray.com/arthenica/ffmpeg-kit")
     }
 }
 

@@ -3,7 +3,6 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:video_player/video_player.dart';
 import 'dart:typed_data';
-import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 
 class paginaVideo extends StatefulWidget {
   const paginaVideo({super.key});
@@ -25,11 +24,13 @@ class _paginaVideoState extends State<paginaVideo> {
   String? _videoFormat;
   VideoPlayerController? _videoController;
 
+
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.video);
     if (result != null) {
       String filePath = result.files.single.path!;
       _videoFormat = await _identifyVideoFormat(filePath);
+      print(filePath);
 
       _videoController?.dispose();
       _videoController = VideoPlayerController.file(File(filePath))
@@ -80,6 +81,8 @@ class _paginaVideoState extends State<paginaVideo> {
     }
     return true;
   }
+
+
 
 
   @override
