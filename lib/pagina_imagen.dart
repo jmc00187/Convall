@@ -41,7 +41,7 @@ class _paginaImagenState extends State<paginaImagen> {
   double? _jpgQuality = 100;
   double? _gifQuality = 10;
   double? _webpQuality = 100;
-  ExifData? _exifData;
+  var _exifData;
 
 
 
@@ -65,13 +65,14 @@ class _paginaImagenState extends State<paginaImagen> {
       _imageFormat = _identifyImageFormat(headerBytes);
       _outputFormat = _imageFormat;
 
-      _exifData = imageData.exif as ExifData?;
-
+      _exifData = await readExifFromBytes(uint8List);
 
 
       setState(() {
         _selectedFilePath = image.path;
       });
+
+
     }
   }
 
@@ -604,47 +605,55 @@ class _paginaImagenState extends State<paginaImagen> {
                               ),
                             ],
 
-                            Card(
-                              elevation: 4,
-                              child: ExpansionTile(
-                                title: Text(
-                                  'Metadatos',
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontFamily: 'SF-ProText-Heavy',
-                                    fontWeight: FontWeight.w800,
-                                    color: Colors.grey.shade700,
-                                  ),
-                                ),
-                                children: _exifData!.tags.map((entry) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Text(entry.key, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
-                                        SizedBox(
-                                          width: 150,
-                                          child: TextFormField(
-                                            initialValue: entry.value.toString(),
-                                            decoration: InputDecoration(
-                                              border: OutlineInputBorder(),
-                                              contentPadding: EdgeInsets.symmetric(horizontal: 8),
-                                            ),
-                                            onChanged: (newValue) {
-                                              setState(() {
-                                                _exifData![entry.key] = newValue;
-                                              });
-                                            },
-                                          ),
 
-                                        ),
-                                      ],
+                            if(_exifData.isNotEmpty) ...[
+
+                              const SizedBox(height: 20),
+
+                              Card(
+                                elevation: 4,
+                                child: ExpansionTile(
+                                  title: Text(
+                                    'Metadatos',
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontFamily: 'SF-ProText-Heavy',
+                                      fontWeight: FontWeight.w800,
+                                      color: Colors.grey.shade700,
                                     ),
-                                  );
-                                }).toList(),
-                              ),
-                            ),
+                                  ),
+                                  children: _exifData.entries.map<Widget>((entry) {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(entry.key, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                                          SizedBox(
+                                            width: 150,
+                                            child: TextFormField(
+                                              initialValue: entry.value.toString(),
+                                              decoration: InputDecoration(
+                                                border: OutlineInputBorder(),
+                                                contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                                              ),
+                                              onChanged: (newValue) {
+                                                setState(() {
+                                                  _exifData[entry.key] = newValue;
+                                                });
+                                              },
+                                            ),
+
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              )
+                            ],
+
+
 
 
                             const SizedBox(height: 20),
