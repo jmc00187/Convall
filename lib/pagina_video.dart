@@ -46,8 +46,7 @@ class _paginaVideoState extends State<paginaVideo> {
     return Scaffold(
       backgroundColor: FloralWhite,
 
-
-
+      
       appBar: AppBar(
         title: const Text(
           'Convall',
@@ -65,65 +64,108 @@ class _paginaVideoState extends State<paginaVideo> {
 
       body: SingleChildScrollView(
         child: Center(
-          child: Container(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-
-
-                  GestureDetector(
-                    onTap: () {
-                      if (_videoController != null && _videoController!.value.isInitialized) {
-                        setState(() {
-                          _videoController!.value.isPlaying
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                GestureDetector(
+                  onTap: () {
+                    if (_videoController != null && _videoController!.value.isInitialized) {
+                      setState(() {
+                        _videoController!.value.isPlaying
                             ? _videoController!.pause()
                             : _videoController!.play();
-                        });
-                      } else {
-                        _pickFile();
-                      }
-                    },
-                    child: _selectedFilePath == null
-                      ? Icon(Icons.add_box_outlined, size: 100, color: EerieBlack)
-                        :ClipRRect(
-                          borderRadius: BorderRadius.circular(20),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              AspectRatio(
-                                aspectRatio: _videoController!.value.aspectRatio,
-                                child: VideoPlayer(_videoController!),
-                              ),
-                              if(!_videoController!.value.isPlaying)
-                                Icon(Icons.play_circle_fill, size: 50, color: Colors.white),
-                            ],
+                      });
+                    } else {
+                      _pickFile();
+                    }
+                  },
+                  child: _selectedFilePath == null
+                      ? Column(
+                      children: [
+                        const SizedBox(height: 100),
+                        Icon(Icons.add_box_outlined, size: 200, color: EerieBlack)
+                      ]
+                  )
+                      : Column(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            AspectRatio(
+                              aspectRatio: _videoController!.value.aspectRatio,
+                              child: VideoPlayer(_videoController!),
+                            ),
+                            if(!_videoController!.value.isPlaying)
+                              Icon(Icons.play_circle_fill, size: 50, color: Colors.white),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        width: 100,
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: Flame,
+                          borderRadius: BorderRadius.vertical(bottom: Radius.circular(20)),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Probando',
+                            style: TextStyle(
+                              color: FloralWhite,
+                              fontSize: 21,
+                              fontFamily: 'SF-ProText-Heavy',
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
-                    )
+                        ),
+                      ),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                    ],
                   ),
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
       ),
+
+
     );
   }
 }
