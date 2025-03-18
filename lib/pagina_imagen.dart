@@ -611,6 +611,7 @@ class _paginaImagenState extends State<paginaImagen> {
 
                               Card(
                                 elevation: 4,
+                                color: Timberwolf,
                                 child: ExpansionTile(
                                   title: Text(
                                     'Metadatos',

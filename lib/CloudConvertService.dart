@@ -120,7 +120,7 @@ class CloudConvertService {
           print('Conversión completada.');
 
           String fileId = responseJson['data']['result']['files'][0]['id'];
-          obtenerUrlDescarga(fileId['0'][0']);
+          //obtenerUrlDescarga(fileId['0'][0']);
 
         } else if (status == 'failed') {
           print('La conversión falló.');
