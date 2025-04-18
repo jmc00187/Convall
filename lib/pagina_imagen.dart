@@ -692,7 +692,7 @@ class _paginaImagenState extends State<paginaImagen> {
                                           child: Row(
                                             children: [
                                               Text(
-                                                'Alto',
+                                                'Ancho',
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   fontFamily: 'SF-ProText-Heavy',
@@ -705,11 +705,11 @@ class _paginaImagenState extends State<paginaImagen> {
                                                 child: TextField(
                                                   keyboardType: TextInputType.number,
                                                   decoration: InputDecoration(
-                                                    hintText: '${_altoOriginal.toString()}',
+                                                    hintText: '${_anchoOriginal.toString()}',
                                                   ),
                                                   onChanged: (value) {
                                                   setState(() {
-                                                    _altoModificado = int.tryParse(value);
+                                                    _anchoModificado = int.tryParse(value);
                                                   });
                                                 },
                                                 ),
@@ -729,7 +729,7 @@ class _paginaImagenState extends State<paginaImagen> {
                                           child: Row(
                                             children: [
                                               Text(
-                                                'Ancho',
+                                                'Alto',
                                                 style: TextStyle(
                                                   fontSize: 16,
                                                   fontFamily: 'SF-ProText-Heavy',
@@ -742,11 +742,11 @@ class _paginaImagenState extends State<paginaImagen> {
                                                 child: TextField(
                                                   keyboardType: TextInputType.number,
                                                   decoration: InputDecoration(
-                                                    hintText: '${_anchoOriginal.toString()}',
+                                                    hintText: '${_altoOriginal.toString()}',
                                                   ),
                                                 onChanged: (value) {
                                                   setState(() {
-                                                  _anchoModificado = int.tryParse(value);
+                                                  _altoModificado = int.tryParse(value);
                                                   });
                                                 },
                                                 ),

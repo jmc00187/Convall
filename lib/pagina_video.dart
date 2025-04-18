@@ -24,10 +24,24 @@ class _paginaVideoState extends State<paginaVideo> {
   File? _videoFile;
   String? _selectedFilePath;
   String? _videoFormat;
+  int? _altoOriginal;
+  int? _anchoOriginal;
   VideoPlayerController? _videoController;
+  String? _outputFormat;
+  String? _outputCodec;
+  double? _crf = 23;
+  int? _outputHeight;
+  int? _outputWidth;
+  int? _outputFps;
+
 
 
   List<String> _outputFormats = ['mp4', 'avi', 'webm', 'mkv', 'flv'];
+  List<String> _mp4Codecs = ['copy', 'x264', 'x265', 'av1'];
+  List<String> _aviCodecs = ['copy', 'x264', 'x265', 'xvid'];
+  List<String> _webmCodecs = ['copy', 'vp8', 'vp9', 'av1'];
+  List<String> _mkvCodecs = ['copy', 'x264', 'x265', 'vp8', 'vp9', 'av1'];
+  List<String> _flvCodecs = ['copy', 'h264', 'sorenson'];
 
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.video);
@@ -42,6 +56,8 @@ class _paginaVideoState extends State<paginaVideo> {
           setState(() {
             _selectedFilePath = filePath;
             _videoFile = File(filePath);
+            _altoOriginal = _videoController!.value.size.height.toInt();
+            _anchoOriginal = _videoController!.value.size.width.toInt();
           });
         });
     }
@@ -187,6 +203,428 @@ class _paginaVideoState extends State<paginaVideo> {
                           ),
                         ),
                       ),
+
+                      const SizedBox(height: 20),
+
+
+
+
+                      if(_selectedFilePath != null) ...[
+
+                        DropdownButtonFormField<String>(
+                          value: _outputFormat,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Timberwolf,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey.shade300),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Colors.grey.shade300),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: EerieBlack, width: 2),
+                            ),
+                          ),
+                          hint: Text(
+                            "Selecciona un formato de salida",
+                            style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w600),
+                          ),
+                          icon: Icon(Icons.expand_circle_down_rounded, color: Colors.grey.shade700),
+                          dropdownColor: Timberwolf,
+                          items: _outputFormats.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                            );
+                          }).toList(),
+                          onChanged: (String? value) {
+                            setState(() {
+                              _outputFormat = value;
+                            });
+                          },
+                        ),
+
+
+
+                        const SizedBox(height: 20),
+
+                        if(_outputFormat == 'mp4') ...[
+                          DropdownButtonFormField<String>(
+                            value: _outputCodec,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Timberwolf,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: EerieBlack, width: 2),
+                              ),
+                            ),
+                            hint: Text(
+                              "Selecciona un codec",
+                              style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w600),
+                            ),
+                            icon: Icon(Icons.expand_circle_down_rounded, color: Colors.grey.shade700),
+                            dropdownColor: Timberwolf,
+                            items: _mp4Codecs.map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                              );
+                            }).toList(),
+                            onChanged: (String? value) {
+                              setState(() {
+                                _outputCodec = value;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+
+                        if(_outputFormat == 'avi') ...[
+                          DropdownButtonFormField<String>(
+                            value: _outputCodec,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Timberwolf,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: EerieBlack, width: 2),
+                              ),
+                            ),
+                            hint: Text(
+                              "Selecciona un codec",
+                              style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w600),
+                            ),
+                            icon: Icon(Icons.expand_circle_down_rounded, color: Colors.grey.shade700),
+                            dropdownColor: Timberwolf,
+                            items: _aviCodecs.map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                              );
+                            }).toList(),
+                            onChanged: (String? value) {
+                              setState(() {
+                                _outputCodec = value;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+
+                        if(_outputFormat == 'webm') ...[
+                          DropdownButtonFormField<String>(
+                            value: _outputCodec,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Timberwolf,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: EerieBlack, width: 2),
+                              ),
+                            ),
+                            hint: Text(
+                              "Selecciona un codec",
+                              style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w600),
+                            ),
+                            icon: Icon(Icons.expand_circle_down_rounded, color: Colors.grey.shade700),
+                            dropdownColor: Timberwolf,
+                            items: _webmCodecs.map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                              );
+                            }).toList(),
+                            onChanged: (String? value) {
+                              setState(() {
+                                _outputCodec = value;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+
+
+                        if(_outputFormat == 'mkv') ...[
+                          DropdownButtonFormField<String>(
+                            value: _outputCodec,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Timberwolf,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: EerieBlack, width: 2),
+                              ),
+                            ),
+                            hint: Text(
+                              "Selecciona un codec",
+                              style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w600),
+                            ),
+                            icon: Icon(Icons.expand_circle_down_rounded, color: Colors.grey.shade700),
+                            dropdownColor: Timberwolf,
+                            items: _mkvCodecs.map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                              );
+                            }).toList(),
+                            onChanged: (String? value) {
+                              setState(() {
+                                _outputCodec = value;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+
+                        if(_outputFormat == 'flv') ...[
+                          DropdownButtonFormField<String>(
+                            value: _outputCodec,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Timberwolf,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: EerieBlack, width: 2),
+                              ),
+                            ),
+                            hint: Text(
+                              "Selecciona un codec",
+                              style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w600),
+                            ),
+                            icon: Icon(Icons.expand_circle_down_rounded, color: Colors.grey.shade700),
+                            dropdownColor: Timberwolf,
+                            items: _flvCodecs.map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                              );
+                            }).toList(),
+                            onChanged: (String? value) {
+                              setState(() {
+                                _outputCodec = value;
+                              });
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                        ],
+
+
+                        Container(
+                            width: double.infinity,
+                            padding: EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                              color: Timberwolf,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+
+                            child: Column(
+                              children: [
+
+                                Text(
+                                  'CRF - Compresión del video',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontFamily: 'SF-ProText-Heavy',
+                                    fontWeight: FontWeight.w800,
+                                    color: Colors.grey.shade700,
+                                  ),
+                                ),
+
+                                const SizedBox(height: 20),
+
+                                Slider(
+                                  value: _crf!,
+                                  year2023: false,
+                                  min: 0,
+                                  max: 51,
+                                  divisions: 51,
+                                  label: _crf?.toInt().toString(),
+                                  onChanged: (double value) {
+                                    setState(() {
+                                      _crf = value;
+                                    });
+                                  },
+                                  activeColor: Flame,
+                                  inactiveColor: BlackOlive,
+                                  //thumbColor: Colors.transparent,
+                                  overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                                        (Set<MaterialState> states) {
+                                      if (states.contains(MaterialState.pressed)) {
+                                        // Si está presionado, usa un color semitransparente
+                                        return Colors.transparent;
+                                      }
+                                      return Colors.transparent; // Sin color cuando no está presionado
+                                    },
+                                  ),
+
+                                ),
+                              ],
+                            )
+                        ),
+
+                        const SizedBox(height: 20),
+
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            color: Timberwolf,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Column(
+                            children: [
+
+                              Text(
+                                'Resolución',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontFamily: 'SF-ProText-Heavy',
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+
+                              const SizedBox(height: 10),
+
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Container(
+                                        padding: EdgeInsets.all(16.0),
+                                        decoration: BoxDecoration(
+                                          color: FloralWhite,
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              'Ancho',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontFamily: 'SF-ProText-Heavy',
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.grey.shade700,
+                                              ),
+                                            ),
+                                            SizedBox(width: 16), // Add some spacing between the text and the text field
+                                            Expanded(
+                                              child: TextField(
+                                                keyboardType: TextInputType.number,
+                                                decoration: InputDecoration(
+                                                  hintText: '${_anchoOriginal.toString()}',
+                                                ),
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    _outputWidth = int.tryParse(value);
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                    ),
+                                  ),
+                                  SizedBox(width: 20),
+                                  Expanded(
+                                    child: Container(
+                                        padding: EdgeInsets.all(16.0),
+                                        decoration: BoxDecoration(
+                                          color: FloralWhite,
+                                          borderRadius: BorderRadius.circular(20),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Text(
+                                              'Alto',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontFamily: 'SF-ProText-Heavy',
+                                                fontWeight: FontWeight.w600,
+                                                color: Colors.grey.shade700,
+                                              ),
+                                            ),
+                                            SizedBox(width: 16), // Add some spacing between the text and the text field
+                                            Expanded(
+                                              child: TextField(
+                                                keyboardType: TextInputType.number,
+                                                decoration: InputDecoration(
+                                                  hintText: '${_altoOriginal.toString()}',
+                                                ),
+                                                onChanged: (value) {
+                                                  setState(() {
+                                                    _outputHeight = int.tryParse(value);
+                                                  });
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                            ],
+                          ),
+                        ),
+
+
+
+                      ],
+
+
+
 
                       const SizedBox(height: 20),
 
