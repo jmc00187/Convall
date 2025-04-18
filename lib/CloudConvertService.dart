@@ -5,13 +5,18 @@ import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 
 class CloudConvertService {
-  final String apiKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMThmYzk4NTkwMzFlYTE4ODE4OTExOTYyODZhMWZlMTQwYmM2N2Y1OGY2ZmJiMTJhMGVlY2Y5OGVkOTExMjljYjJiODIwZTdiMGViMDM1ZTMiLCJpYXQiOjE3NDIxNjAyNzIuOTM1NzQsIm5iZiI6MTc0MjE2MDI3Mi45MzU3NDEsImV4cCI6NDg5NzgzMzg3Mi45MzE3NjYsInN1YiI6IjcxMzUyODQ2Iiwic2NvcGVzIjpbInByZXNldC53cml0ZSIsInByZXNldC5yZWFkIiwid2ViaG9vay53cml0ZSIsIndlYmhvb2sucmVhZCIsInRhc2sud3JpdGUiLCJ0YXNrLnJlYWQiLCJ1c2VyLndyaXRlIiwidXNlci5yZWFkIl19.io2qpe2WCKPgWXx0fRq3clN5vbljaAyZA0j1iJreBBemJoCbYWhaWo-nhQ9puWPa-zbBnQJ6FqrodxwrtiTZveUQbXIoOI1GArnNwa8m861-XbJtGUq_dzrpmocatsTlaZIFSAj51HousWBu-olTaz00GrI4KBKfnguYdBNer-JqcWIObOwcfHJAWIoS1Lg82-lbA7FTb-CV6qJp8PL2EN0HQVx_dMvm5cXpybc33zDAVmH44NVD30fIwK_rTp70Ku0L4FiLooaQIZ3_jU5whB-emo390Keu8IHP3vjCilKjY--31zIifq1VOxRtRAxtH8qD0W86l0vuoXUmsrEYzvRdemsGhYygKnfh2AKr-schcXFjk27dohur7Wxf2ubtTaKq4koPSuQ4ha7dekXoqCEOhwZpxoDo5KBJKwpjPQEeaTHtrVONj8d7_L0zDlaGJq-8gkGa6fqjeqkE5oZFFzQf-14WG99-UC9M9jJgYJEDR31xOqzzcKEddzi447guEMIsrpUNrGsRfw6RoTR7Ej8_sor0rQjb0hUT1QTgBWWivcGRP4cHVn4o4W3ftPKDCiylDATUq1roHxWXpZ3jIO2LXp_yVa5_PC_Nlm6fguGd-_fESxn_Yf4j2efiHCP7saKsHXln8OV0nycFZzNfT6aMC4GYaJ-IKEy1MbmrfaQ';
+
+
+  // ARRIBA Clave de API real, ABAJO clave de API de sandbox
+
+  //final String apiKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMThmYzk4NTkwMzFlYTE4ODE4OTExOTYyODZhMWZlMTQwYmM2N2Y1OGY2ZmJiMTJhMGVlY2Y5OGVkOTExMjljYjJiODIwZTdiMGViMDM1ZTMiLCJpYXQiOjE3NDIxNjAyNzIuOTM1NzQsIm5iZiI6MTc0MjE2MDI3Mi45MzU3NDEsImV4cCI6NDg5NzgzMzg3Mi45MzE3NjYsInN1YiI6IjcxMzUyODQ2Iiwic2NvcGVzIjpbInByZXNldC53cml0ZSIsInByZXNldC5yZWFkIiwid2ViaG9vay53cml0ZSIsIndlYmhvb2sucmVhZCIsInRhc2sud3JpdGUiLCJ0YXNrLnJlYWQiLCJ1c2VyLndyaXRlIiwidXNlci5yZWFkIl19.io2qpe2WCKPgWXx0fRq3clN5vbljaAyZA0j1iJreBBemJoCbYWhaWo-nhQ9puWPa-zbBnQJ6FqrodxwrtiTZveUQbXIoOI1GArnNwa8m861-XbJtGUq_dzrpmocatsTlaZIFSAj51HousWBu-olTaz00GrI4KBKfnguYdBNer-JqcWIObOwcfHJAWIoS1Lg82-lbA7FTb-CV6qJp8PL2EN0HQVx_dMvm5cXpybc33zDAVmH44NVD30fIwK_rTp70Ku0L4FiLooaQIZ3_jU5whB-emo390Keu8IHP3vjCilKjY--31zIifq1VOxRtRAxtH8qD0W86l0vuoXUmsrEYzvRdemsGhYygKnfh2AKr-schcXFjk27dohur7Wxf2ubtTaKq4koPSuQ4ha7dekXoqCEOhwZpxoDo5KBJKwpjPQEeaTHtrVONj8d7_L0zDlaGJq-8gkGa6fqjeqkE5oZFFzQf-14WG99-UC9M9jJgYJEDR31xOqzzcKEddzi447guEMIsrpUNrGsRfw6RoTR7Ej8_sor0rQjb0hUT1QTgBWWivcGRP4cHVn4o4W3ftPKDCiylDATUq1roHxWXpZ3jIO2LXp_yVa5_PC_Nlm6fguGd-_fESxn_Yf4j2efiHCP7saKsHXln8OV0nycFZzNfT6aMC4GYaJ-IKEy1MbmrfaQ';
+  final String apiKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMmY2MTI5OTBmY2JlMjg1NTVhY2NhMTA1NTYyNDQ3YmM2OTczNDM4ZDQzYzViMGRiOWZiMmM1MTVlNjhmNTIzODlhZTI4Y2E5NGUwMmIxMTMiLCJpYXQiOjE3NDQ5OTUzOTkuNzIyNDM1LCJuYmYiOjE3NDQ5OTUzOTkuNzIyNDM5LCJleHAiOjQ5MDA2Njg5OTkuNzE4NTg0LCJzdWIiOiI3MTM1Mjg0NiIsInNjb3BlcyI6WyJwcmVzZXQud3JpdGUiLCJwcmVzZXQucmVhZCIsIndlYmhvb2sud3JpdGUiLCJ3ZWJob29rLnJlYWQiLCJ0YXNrLndyaXRlIiwidXNlci5yZWFkIiwidXNlci53cml0ZSIsInRhc2sucmVhZCJdfQ.FKGgw_8L8LX8-hOLIBFZDURz7HzzyAPS3C7W7BdafC1rhXeMfASbfiDKiVWeHvmlCj6rPi6Is08cqnl4mCNYSPD7RPALmfJOaAiTIbC8yDNFJe8k1qbJ1gF3IJ0fYyenRRfCmvm8b5ME3U2E4z8VFdMpigE4C0AOUR-YGvtF8r1Wg92uk1xdTD3A9P_xUc6sEe3ioteHfOt5q3kafX02IKRYbNX5Cu0NSvTgsdTBXpFZUF7hAyzt4_9UFbx6rDzojUifk8Jors6o8lJRz_uzMP93BEutarufbSZmzrDAqWSv912E-4YzMIxh2XCqUeOJsgnWzN9oGpWOCcp-mvUYyLu9MPC__F_BAv1Vr59g3I-GIMDKRK5pkN1Y5cUUpGWV90eVzejWIgfA0r6AU2B7cxB7ikcIrXgZ-MJYPHl3XP0HYU4sqlAODeXm96zSpzA6yjWb3dB7_od6kK4cyOgb6mrwS6wLURkfR7S92dgeVEMKUlhoCO5IGMx5OMVou5SFcFkfjcf64jv-T05XmPgqOrOdBoqFWeipBUo2fj4G6mOvNH-LmXlPOSU7ok4fREbCe2vilDyM_PhXIHCZXUFdWTJZQxYG_FI-qBVbOHbFC_qTx7KeIDI9O4R1tX9Ez-0TGaNniGtm3OxQ7o5ijgy5OYYngY_bsmEDV6QToTbPvlQ';
 
   Future<void> fileUpload(File file) async {
 
     try {
       // Paso 1: Obtener la URL de subida
-      var url = Uri.parse('https://api.cloudconvert.com/v2/import/upload');
+      var url = Uri.parse('https://api.sandbox.cloudconvert.com/v2/import/upload');
       var response = await http.post(
         url,
         headers: {'Authorization': 'Bearer $apiKey'},
@@ -70,7 +75,7 @@ class CloudConvertService {
   Future<void> fileConvert(String fileId) async {
     try {
 
-      var url = Uri.parse('https://api.cloudconvert.com/v2/convert');
+      var url = Uri.parse('https://api.sandbox.cloudconvert.com/v2/convert');
       var body = json.encode({
         'input': {'file': fileId},
         'output_format': 'avi', // Puedes cambiar a otro formato como .avi, .mov, etc.
@@ -106,7 +111,7 @@ class CloudConvertService {
   Future<void> monitorizarConversion(String taskId) async {
     try {
 
-      var url = Uri.parse('https://api.cloudconvert.com/v2/tasks/$taskId');
+      var url = Uri.parse('https://api.sandbox.cloudconvert.com/v2/tasks/$taskId');
       var response = await http.get(url, headers: {
         'Authorization': 'Bearer $apiKey',
       });
@@ -119,8 +124,8 @@ class CloudConvertService {
         if (status == 'finished') {
           print('Conversión completada.');
 
-          String fileId = responseJson['data']['result']['files'][0]['id'];
-          //obtenerUrlDescarga(fileId['0'][0']);
+
+          obtenerUrlDescarga(responseJson['data']['id']);
 
         } else if (status == 'failed') {
           print('La conversión falló.');
@@ -159,7 +164,7 @@ class CloudConvertService {
   }
 
   Future<void> obtenerUrlDescarga(String fileId) async {
-    var url = Uri.parse('https://api.cloudconvert.com/v2/export/url');
+    var url = Uri.parse('https://api.sandbox.cloudconvert.com/v2/export/url');
 
     // Cuerpo de la solicitud POST
     var body = json.encode({
@@ -175,22 +180,44 @@ class CloudConvertService {
       },
       body: body,
     );
+    var responseJson = json.decode(response.body);
 
-    if (response.statusCode == 200) {
-      var responseJson = json.decode(response.body);
-      if (responseJson['data'] != null && responseJson['data']['url'] != null) {
-        String downloadUrl = responseJson['data']['url'];
+    await Future.delayed(Duration(seconds: 2));
+    var urlFinished = Uri.parse('https://api.sandbox.cloudconvert.com/v2/tasks/${responseJson['data']['id']}?include=payload');
+    var responseFinished = await http.get(
+      urlFinished,
+      headers: {
+        'Authorization': 'Bearer $apiKey',
+      },
+    );
+
+    var responseFinishedJson = json.decode(responseFinished.body);
+
+
+
+
+    if (responseFinished.statusCode == 200) {
+
+      print("Estado de la exportacion: ${responseFinishedJson['data']['status']}");
+      try {
+        String downloadUrl = responseFinishedJson['data']['result']['files'][0]['url'];
         print('URL de descarga: $downloadUrl');
         downloadFile(downloadUrl);
-      } else {
-        print('Error: No se encontró la URL de descarga en la respuesta.');
+      } catch (e) {
+        print('Error: No se pudo extraer la URL de descarga.');
+        print('Detalles: $e');
       }
     } else {
       print('Error al obtener la URL de descarga: ${response.statusCode}');
       print('Respuesta completa: ${response.body}');
     }
-    
+
+
+
   }
+
+
+
 
 }
 
