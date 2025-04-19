@@ -1,10 +1,20 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'main.dart';
+
 class CloudConvertService {
+
+  String? _outputformat = '';
+  String? _videoCodec = '';
+  int? _crf = 23;
+  int? _width = null;
+  int? _height = null;
+  String? _audioCodec = '';
 
 
   // ARRIBA Clave de API real, ABAJO clave de API de sandbox
@@ -12,9 +22,23 @@ class CloudConvertService {
   //final String apiKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMThmYzk4NTkwMzFlYTE4ODE4OTExOTYyODZhMWZlMTQwYmM2N2Y1OGY2ZmJiMTJhMGVlY2Y5OGVkOTExMjljYjJiODIwZTdiMGViMDM1ZTMiLCJpYXQiOjE3NDIxNjAyNzIuOTM1NzQsIm5iZiI6MTc0MjE2MDI3Mi45MzU3NDEsImV4cCI6NDg5NzgzMzg3Mi45MzE3NjYsInN1YiI6IjcxMzUyODQ2Iiwic2NvcGVzIjpbInByZXNldC53cml0ZSIsInByZXNldC5yZWFkIiwid2ViaG9vay53cml0ZSIsIndlYmhvb2sucmVhZCIsInRhc2sud3JpdGUiLCJ0YXNrLnJlYWQiLCJ1c2VyLndyaXRlIiwidXNlci5yZWFkIl19.io2qpe2WCKPgWXx0fRq3clN5vbljaAyZA0j1iJreBBemJoCbYWhaWo-nhQ9puWPa-zbBnQJ6FqrodxwrtiTZveUQbXIoOI1GArnNwa8m861-XbJtGUq_dzrpmocatsTlaZIFSAj51HousWBu-olTaz00GrI4KBKfnguYdBNer-JqcWIObOwcfHJAWIoS1Lg82-lbA7FTb-CV6qJp8PL2EN0HQVx_dMvm5cXpybc33zDAVmH44NVD30fIwK_rTp70Ku0L4FiLooaQIZ3_jU5whB-emo390Keu8IHP3vjCilKjY--31zIifq1VOxRtRAxtH8qD0W86l0vuoXUmsrEYzvRdemsGhYygKnfh2AKr-schcXFjk27dohur7Wxf2ubtTaKq4koPSuQ4ha7dekXoqCEOhwZpxoDo5KBJKwpjPQEeaTHtrVONj8d7_L0zDlaGJq-8gkGa6fqjeqkE5oZFFzQf-14WG99-UC9M9jJgYJEDR31xOqzzcKEddzi447guEMIsrpUNrGsRfw6RoTR7Ej8_sor0rQjb0hUT1QTgBWWivcGRP4cHVn4o4W3ftPKDCiylDATUq1roHxWXpZ3jIO2LXp_yVa5_PC_Nlm6fguGd-_fESxn_Yf4j2efiHCP7saKsHXln8OV0nycFZzNfT6aMC4GYaJ-IKEy1MbmrfaQ';
   final String apiKey = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiIxIiwianRpIjoiMmY2MTI5OTBmY2JlMjg1NTVhY2NhMTA1NTYyNDQ3YmM2OTczNDM4ZDQzYzViMGRiOWZiMmM1MTVlNjhmNTIzODlhZTI4Y2E5NGUwMmIxMTMiLCJpYXQiOjE3NDQ5OTUzOTkuNzIyNDM1LCJuYmYiOjE3NDQ5OTUzOTkuNzIyNDM5LCJleHAiOjQ5MDA2Njg5OTkuNzE4NTg0LCJzdWIiOiI3MTM1Mjg0NiIsInNjb3BlcyI6WyJwcmVzZXQud3JpdGUiLCJwcmVzZXQucmVhZCIsIndlYmhvb2sud3JpdGUiLCJ3ZWJob29rLnJlYWQiLCJ0YXNrLndyaXRlIiwidXNlci5yZWFkIiwidXNlci53cml0ZSIsInRhc2sucmVhZCJdfQ.FKGgw_8L8LX8-hOLIBFZDURz7HzzyAPS3C7W7BdafC1rhXeMfASbfiDKiVWeHvmlCj6rPi6Is08cqnl4mCNYSPD7RPALmfJOaAiTIbC8yDNFJe8k1qbJ1gF3IJ0fYyenRRfCmvm8b5ME3U2E4z8VFdMpigE4C0AOUR-YGvtF8r1Wg92uk1xdTD3A9P_xUc6sEe3ioteHfOt5q3kafX02IKRYbNX5Cu0NSvTgsdTBXpFZUF7hAyzt4_9UFbx6rDzojUifk8Jors6o8lJRz_uzMP93BEutarufbSZmzrDAqWSv912E-4YzMIxh2XCqUeOJsgnWzN9oGpWOCcp-mvUYyLu9MPC__F_BAv1Vr59g3I-GIMDKRK5pkN1Y5cUUpGWV90eVzejWIgfA0r6AU2B7cxB7ikcIrXgZ-MJYPHl3XP0HYU4sqlAODeXm96zSpzA6yjWb3dB7_od6kK4cyOgb6mrwS6wLURkfR7S92dgeVEMKUlhoCO5IGMx5OMVou5SFcFkfjcf64jv-T05XmPgqOrOdBoqFWeipBUo2fj4G6mOvNH-LmXlPOSU7ok4fREbCe2vilDyM_PhXIHCZXUFdWTJZQxYG_FI-qBVbOHbFC_qTx7KeIDI9O4R1tX9Ez-0TGaNniGtm3OxQ7o5ijgy5OYYngY_bsmEDV6QToTbPvlQ';
 
-  Future<void> fileUpload(File file) async {
+  Future<void> fileUpload(BuildContext context, File file, {outputformat='', videoCodec='', crf=23, width=null, height=null, audioCodec=''}) async {
+
+    _outputformat = outputformat;
+    _videoCodec = videoCodec;
+    _crf = crf;
+    _width = width;
+    _height = height;
+    _audioCodec = audioCodec;
 
     try {
+
+      // Mostrar SnackBar indicando que el archivo está subiendo
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Subiendo archivo...'))
+      );
+
+
       // Paso 1: Obtener la URL de subida
       var url = Uri.parse('https://api.sandbox.cloudconvert.com/v2/import/upload');
       var response = await http.post(
@@ -63,6 +87,10 @@ class CloudConvertService {
 
         // Paso 4: Iniciar conversión con el fileId
         await fileConvert(fileId);
+
+        // Ocultar SnackBar después de completar la subida y conversión
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
       } else {
         print('Error al subir el archivo a S3: ${uploadResponse.statusCode}');
       }
@@ -78,8 +106,13 @@ class CloudConvertService {
       var url = Uri.parse('https://api.sandbox.cloudconvert.com/v2/convert');
       var body = json.encode({
         'input': {'file': fileId},
-        'output_format': 'avi', // Puedes cambiar a otro formato como .avi, .mov, etc.
-        'autostart': true
+        'output_format': _outputformat,
+        'autostart': true,
+        'video_codec': _videoCodec,
+        'crf': _crf,
+        'width': _width,
+        'height': _height,
+        'audio_codec': _audioCodec
       });
 
       var response = await http.post(
@@ -101,6 +134,7 @@ class CloudConvertService {
 
       } else {
         print('Error al crear la tarea de conversión: ${response.statusCode}');
+        print('Respuesta completa: ${response.body}');
       }
 
     } catch (e) {
@@ -162,6 +196,10 @@ class CloudConvertService {
       print('Error al descargar el archivo: $e');
     }
   }
+
+
+
+
 
   Future<void> obtenerUrlDescarga(String fileId) async {
     var url = Uri.parse('https://api.sandbox.cloudconvert.com/v2/export/url');

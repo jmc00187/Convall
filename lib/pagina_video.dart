@@ -32,7 +32,6 @@ class _paginaVideoState extends State<paginaVideo> {
   double? _crf = 23;
   int? _outputHeight;
   int? _outputWidth;
-  int? _outputFps;
   String? _outputAudioCodec;
 
 
@@ -75,7 +74,14 @@ class _paginaVideoState extends State<paginaVideo> {
   {
     if(_videoFile != null)
     {
-      CloudConvertService().fileUpload(_videoFile!);
+      CloudConvertService().fileUpload(context, _videoFile!,
+        outputformat: _outputFormat!,
+        videoCodec: _outputCodec!,
+        crf: _crf!.toInt(),
+        width: _outputWidth,
+        height: _outputHeight,
+        audioCodec: _outputAudioCodec!
+      );
     }
     else
     {
