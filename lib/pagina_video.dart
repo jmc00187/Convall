@@ -33,15 +33,22 @@ class _paginaVideoState extends State<paginaVideo> {
   int? _outputHeight;
   int? _outputWidth;
   int? _outputFps;
+  String? _outputAudioCodec;
 
 
 
   List<String> _outputFormats = ['mp4', 'avi', 'webm', 'mkv', 'flv'];
+
   List<String> _mp4Codecs = ['copy', 'x264', 'x265', 'av1'];
   List<String> _aviCodecs = ['copy', 'x264', 'x265', 'xvid'];
   List<String> _webmCodecs = ['copy', 'vp8', 'vp9', 'av1'];
   List<String> _mkvCodecs = ['copy', 'x264', 'x265', 'vp8', 'vp9', 'av1'];
   List<String> _flvCodecs = ['copy', 'h264', 'sorenson'];
+
+  List<String> _audioCodecs = ['copy', 'none', 'aac', 'aac_he_1', 'aac_he_2', 'opus', 'vorbis'];
+  List<String> _webmAudioCodecs = ['copy', 'none', 'opus', 'vorbis'];
+
+
 
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.video);
@@ -620,6 +627,103 @@ class _paginaVideoState extends State<paginaVideo> {
                         ),
 
 
+                        if(_outputFormat == 'webm') ...[
+
+                          const SizedBox(height: 20),
+
+                          DropdownButtonFormField<String>(
+                            value: _outputAudioCodec,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Timberwolf,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: EerieBlack, width: 2),
+                              ),
+                            ),
+                            hint: Text(
+                              "Selecciona un Codec de audio",
+                              style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w600),
+                            ),
+                            icon: Icon(Icons.expand_circle_down_rounded, color: Colors.grey.shade700),
+                            dropdownColor: Timberwolf,
+                            items: _webmAudioCodecs.map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                              );
+                            }).toList(),
+                            onChanged: (String? value) {
+                              setState(() {
+                                _outputAudioCodec = value;
+                              });
+                            },
+                          ),
+
+
+                        ],
+
+                        if(_outputFormat != 'webm') ...[
+
+                          const SizedBox(height: 20),
+
+
+                          DropdownButtonFormField<String>(
+                            value: _outputAudioCodec,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Timberwolf,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: Colors.grey.shade300),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide: BorderSide(color: EerieBlack, width: 2),
+                              ),
+                            ),
+                            hint: Text(
+                              "Selecciona un Codec de audio",
+                              style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w600),
+                            ),
+                            icon: Icon(Icons.expand_circle_down_rounded, color: Colors.grey.shade700),
+                            dropdownColor: Timberwolf,
+                            items: _audioCodecs.map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                              );
+                            }).toList(),
+                            onChanged: (String? value) {
+                              setState(() {
+                                _outputAudioCodec = value;
+                              });
+                            },
+                          ),
+
+
+                        ],
+
+
+
+
+
+
+
 
                       ],
 
@@ -648,6 +752,8 @@ class _paginaVideoState extends State<paginaVideo> {
                           ),
                         ),
                       ),
+
+                      const SizedBox(height: 100),
 
 
 
