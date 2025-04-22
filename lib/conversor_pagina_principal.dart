@@ -21,7 +21,17 @@ class _ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
   static const Color EerieBlack = Color(0xFF252422);
   static const Color Flame = Color(0xFFEB5E28);
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
   int _selectedIndex = 0; // Página seleccionada
+
+  List<String> elementos = ['Elemento 1', 'Elemento 2', 'Elemento 3'];
+
+  void _agregarElemento() {
+    setState(() {
+      elementos.add('Elemento ${elementos.length + 1}');
+    });
+  }
 
   // Lista de constructores para regenerar las páginas
   final List<Widget Function(Key)> _pageBuilders = [
@@ -58,7 +68,48 @@ class _ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       extendBody: true,
+
+      drawer: Drawer(
+        child: Container(
+          color: FloralWhite,
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              DrawerHeader(
+                decoration: BoxDecoration(color: Flame),
+                child: Text(
+                  'Conversiones',
+                  style: TextStyle(color: FloralWhite, fontSize: 24),
+                ),
+              ),
+              ...elementos.map((elemento) => Container(
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: EdgeInsets.all(16),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Text(
+                  elemento,
+                  style: TextStyle(fontSize: 18),
+                ),
+              )),
+            ],
+          ),
+        ),
+      ),
+
+
       body: Stack(
         children: [
           IndexedStack(
@@ -77,6 +128,19 @@ class _ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
               mini: true,
             ),
           ),
+
+          Positioned(
+            top: 70,
+            left: 20,
+            child: FloatingActionButton(
+              onPressed: () {_scaffoldKey.currentState?.openDrawer();},
+              backgroundColor: Flame,
+              child: Icon(Icons.add, color: FloralWhite),
+              mini: true,
+            ),
+          ),
+
+
 
           Align(
             alignment: Alignment.bottomCenter,
