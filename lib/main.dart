@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:convall/conversor_app.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'CloudConvertService.dart';
 
 
+void main() async{
 
-void main() {
+  await Hive.initFlutter(); // Inicializar Hive
+  Hive.registerAdapter(CloudConvertServiceAdapter());
 
   runApp(const ConversorApp());
 

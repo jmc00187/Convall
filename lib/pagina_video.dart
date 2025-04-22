@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:video_player/video_player.dart';
 import 'dart:typed_data';
 import 'CloudConvertService.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class paginaVideo extends StatefulWidget {
   const paginaVideo({super.key});
@@ -13,6 +14,14 @@ class paginaVideo extends StatefulWidget {
 }
 
 class _paginaVideoState extends State<paginaVideo> {
+
+  late Box<CloudConvertService> cloudConvertBox;
+
+  @override
+  void initState() {
+    super.initState();
+    _initHive(); // Inicializamos Hive en initState
+  }
 
   static const Color FloralWhite = Color(0xFFFFFCF2);
   static const Color Timberwolf = Color(0xFFCCC5B9);
@@ -49,6 +58,14 @@ class _paginaVideoState extends State<paginaVideo> {
 
 
 
+  // Inicializar Hive y abrir el Box
+  Future<void> _initHive() async {
+    await Hive.initFlutter();
+    Hive.registerAdapter(CloudConvertServiceAdapter());
+    cloudConvertBox = await Hive.openBox<CloudConvertService>('cloudConvertServices');
+    setState(() {});
+  }
+
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.video);
     if (result != null) {
@@ -74,7 +91,8 @@ class _paginaVideoState extends State<paginaVideo> {
   {
     if(_videoFile != null)
     {
-      CloudConvertService().fileUpload(context, _videoFile!,
+      CloudConvertService ccs1 = CloudConvertService();
+      ccs1.fileUpload(context, _videoFile!,
         outputformat: _outputFormat!,
         videoCodec: _outputCodec!,
         crf: _crf!.toInt(),
@@ -82,6 +100,10 @@ class _paginaVideoState extends State<paginaVideo> {
         height: _outputHeight,
         audioCodec: _outputAudioCodec!
       );
+
+      cloudConvertBox.add(ccs1);
+      setState(() {});
+
     }
     else
     {

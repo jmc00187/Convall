@@ -6,15 +6,18 @@ import 'package:convall/pagina_imagen.dart';
 import 'package:convall/pagina_video.dart';
 import 'package:convall/pagina_carpetas.dart';
 
+import 'package:convall/CloudConvertService.dart';
+import 'drawer_widget.dart';
+
 class ConversorPaginaPrincipal extends StatefulWidget {
   const ConversorPaginaPrincipal({super.key});
 
   @override
   State<ConversorPaginaPrincipal> createState() =>
-      _ConversorPaginaPrincipalState();
+      ConversorPaginaPrincipalState();
 }
 
-class _ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
+class ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
   static const Color FloralWhite = Color(0xFFFFFCF2);
   static const Color Timberwolf = Color(0xFFCCC5B9);
   static const Color BlackOlive = Color(0xFF403D39);
@@ -25,13 +28,7 @@ class _ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
 
   int _selectedIndex = 0; // Página seleccionada
 
-  List<String> elementos = ['Elemento 1', 'Elemento 2', 'Elemento 3'];
 
-  void _agregarElemento() {
-    setState(() {
-      elementos.add('Elemento ${elementos.length + 1}');
-    });
-  }
 
   // Lista de constructores para regenerar las páginas
   final List<Widget Function(Key)> _pageBuilders = [
@@ -70,44 +67,7 @@ class _ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
     return Scaffold(
       key: _scaffoldKey,
       extendBody: true,
-
-      drawer: Drawer(
-        child: Container(
-          color: FloralWhite,
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              DrawerHeader(
-                decoration: BoxDecoration(color: Flame),
-                child: Text(
-                  'Conversiones',
-                  style: TextStyle(color: FloralWhite, fontSize: 24),
-                ),
-              ),
-              ...elementos.map((elemento) => Container(
-                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                padding: EdgeInsets.all(16),
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 4,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Text(
-                  elemento,
-                  style: TextStyle(fontSize: 18),
-                ),
-              )),
-            ],
-          ),
-        ),
-      ),
+      drawer: DrawerWidget(),
 
 
       body: Stack(
@@ -135,7 +95,7 @@ class _ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
             child: FloatingActionButton(
               onPressed: () {_scaffoldKey.currentState?.openDrawer();},
               backgroundColor: Flame,
-              child: Icon(Icons.add, color: FloralWhite),
+              child: Icon(Icons.archive_rounded, color: FloralWhite),
               mini: true,
             ),
           ),
