@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:convall/pagina_audio.dart';
 import 'package:convall/pagina_imagen.dart';
 import 'package:convall/pagina_video.dart';
-import 'package:convall/pagina_carpetas.dart';
+import 'package:convall/pagina_metadatos.dart';
 
 
 class ConversorPaginaPrincipal extends StatefulWidget {
@@ -33,7 +33,7 @@ class ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
         (key) => paginaVideo(key: key),
         (key) => paginaImagen(key: key),
         (key) => paginaAudio(key: key),
-        (key) => paginaCarpetas(key: key),
+        (key) => paginaMetadatos(key: key),
   ];
 
   // Lista que almacena las instancias actuales de las páginas con Keys únicas
@@ -129,7 +129,7 @@ class ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
                     BottomNavigationBarItem(
                         icon: Icon(Icons.audiotrack_rounded), label: 'Audio'),
                     BottomNavigationBarItem(
-                        icon: Icon(Icons.folder_copy), label: 'Carpetas'),
+                        icon: Icon(Icons.account_tree_rounded), label: 'Metadatos'),
                   ],
                 ),
               ),

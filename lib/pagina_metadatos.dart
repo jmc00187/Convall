@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class paginaCarpetas extends StatefulWidget {
-  const paginaCarpetas({super.key});
+class paginaMetadatos extends StatefulWidget {
+  const paginaMetadatos({super.key});
 
   @override
-  State<paginaCarpetas> createState() => _paginaCarpetasState();
+  State<paginaMetadatos> createState() => _paginaMetadatosState();
 }
 
-class _paginaCarpetasState extends State<paginaCarpetas> {
+class _paginaMetadatosState extends State<paginaMetadatos> {
 
   static const Color FloralWhite = Color(0xFFFFFCF2);
   static const Color Timberwolf = Color(0xFFCCC5B9);
@@ -38,7 +38,7 @@ class _paginaCarpetasState extends State<paginaCarpetas> {
         body: const SafeArea(
             child: Center(
               child: Text(
-                'Pagina de conversion por carpetas',
+                'Pagina de metadatos',
                 style: TextStyle(
                     fontSize: 24,
                     color: EerieBlack
