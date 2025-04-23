@@ -22,7 +22,6 @@ class _paginaVideoState extends State<paginaVideo> {
   static const Color EerieBlack = Color(0xFF252422);
   static const Color Flame = Color(0xFFEB5E28);
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   List<CloudConvertService> elementos = [];
 
@@ -80,6 +79,8 @@ class _paginaVideoState extends State<paginaVideo> {
   {
     if(_videoFile != null)
     {
+      _outputCodec ??= 'copy';
+      _outputAudioCodec ??= 'copy';
       CloudConvertService ccs1 = CloudConvertService();
       ccs1.fileUpload(context, _videoFile!,
         outputformat: _outputFormat!,
@@ -93,7 +94,6 @@ class _paginaVideoState extends State<paginaVideo> {
       setState(() {
         elementos.add(ccs1);
       });
-
 
     }
     else
@@ -156,7 +156,7 @@ class _paginaVideoState extends State<paginaVideo> {
         backgroundColor: FloralWhite,
         leading: Builder(
           builder: (context) => Align(
-            alignment: Alignment(1.5, -0.2),
+            alignment: Alignment(1.6, -0.3),
             child: SizedBox(
               width: 40,
               height: 40,
@@ -290,9 +290,22 @@ class _paginaVideoState extends State<paginaVideo> {
                           items: _outputFormats.map((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
-                              child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                              child: Text(value.toUpperCase(), style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
                             );
                           }).toList(),
+                          selectedItemBuilder: (BuildContext context) {
+                            return _outputFormats.map((String value) {
+                              return Text(
+                                'Formato seleccionado: ${value.toUpperCase()}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey.shade700,
+                                  fontFamily: 'SF-ProText-Heavy',
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              );
+                            }).toList();
+                          },
                           onChanged: (String? value) {
                             setState(() {
                               _outputFormat = value;
@@ -333,9 +346,22 @@ class _paginaVideoState extends State<paginaVideo> {
                             items: _mp4Codecs.map((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
-                                child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                                child: Text(value.toUpperCase(), style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
                               );
                             }).toList(),
+                            selectedItemBuilder: (BuildContext context) {
+                              return _mp4Codecs.map((String value) {
+                                return Text(
+                                  'Codec de video seleccionado: ${value.toUpperCase()}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey.shade700,
+                                    fontFamily: 'SF-ProText-Heavy',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                );
+                              }).toList();
+                            },
                             onChanged: (String? value) {
                               setState(() {
                                 _outputCodec = value;
@@ -374,9 +400,22 @@ class _paginaVideoState extends State<paginaVideo> {
                             items: _aviCodecs.map((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
-                                child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                                child: Text(value.toUpperCase(), style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
                               );
                             }).toList(),
+                            selectedItemBuilder: (BuildContext context) {
+                              return _aviCodecs.map((String value) {
+                                return Text(
+                                  'Codec de video seleccionado: ${value.toUpperCase()}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey.shade700,
+                                    fontFamily: 'SF-ProText-Heavy',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                );
+                              }).toList();
+                            },
                             onChanged: (String? value) {
                               setState(() {
                                 _outputCodec = value;
@@ -415,9 +454,22 @@ class _paginaVideoState extends State<paginaVideo> {
                             items: _webmCodecs.map((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
-                                child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                                child: Text(value.toUpperCase(), style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
                               );
                             }).toList(),
+                            selectedItemBuilder: (BuildContext context) {
+                              return _webmCodecs.map((String value) {
+                                return Text(
+                                  'Codec de video seleccionado: ${value.toUpperCase()}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey.shade700,
+                                    fontFamily: 'SF-ProText-Heavy',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                );
+                              }).toList();
+                            },
                             onChanged: (String? value) {
                               setState(() {
                                 _outputCodec = value;
@@ -457,9 +509,22 @@ class _paginaVideoState extends State<paginaVideo> {
                             items: _mkvCodecs.map((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
-                                child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                                child: Text(value.toUpperCase(), style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
                               );
                             }).toList(),
+                            selectedItemBuilder: (BuildContext context) {
+                              return _mkvCodecs.map((String value) {
+                                return Text(
+                                  'Codec de video seleccionado: ${value.toUpperCase()}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey.shade700,
+                                    fontFamily: 'SF-ProText-Heavy',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                );
+                              }).toList();
+                            },
                             onChanged: (String? value) {
                               setState(() {
                                 _outputCodec = value;
@@ -498,9 +563,22 @@ class _paginaVideoState extends State<paginaVideo> {
                             items: _flvCodecs.map((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
-                                child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                                child: Text(value.toUpperCase(), style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
                               );
                             }).toList(),
+                            selectedItemBuilder: (BuildContext context) {
+                              return _flvCodecs.map((String value) {
+                                return Text(
+                                  'Codec de video seleccionado: ${value.toUpperCase()}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey.shade700,
+                                    fontFamily: 'SF-ProText-Heavy',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                );
+                              }).toList();
+                            },
                             onChanged: (String? value) {
                               setState(() {
                                 _outputCodec = value;
@@ -703,9 +781,22 @@ class _paginaVideoState extends State<paginaVideo> {
                             items: _webmAudioCodecs.map((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
-                                child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                                child: Text(value.toUpperCase(), style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
                               );
                             }).toList(),
+                            selectedItemBuilder: (BuildContext context) {
+                              return _webmAudioCodecs.map((String value) {
+                                return Text(
+                                  'Codec de audio seleccionado: ${value.toUpperCase()}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey.shade700,
+                                    fontFamily: 'SF-ProText-Heavy',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                );
+                              }).toList();
+                            },
                             onChanged: (String? value) {
                               setState(() {
                                 _outputAudioCodec = value;
@@ -749,9 +840,22 @@ class _paginaVideoState extends State<paginaVideo> {
                             items: _audioCodecs.map((String value) {
                               return DropdownMenuItem<String>(
                                 value: value,
-                                child: Text(value, style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
+                                child: Text(value.toUpperCase(), style: TextStyle(fontSize: 16, color: Colors.grey.shade700, fontFamily: 'SF-ProText-Heavy', fontWeight: FontWeight.w800)),
                               );
                             }).toList(),
+                            selectedItemBuilder: (BuildContext context) {
+                              return _audioCodecs.map((String value) {
+                                return Text(
+                                  'Codec de audio seleccionado: ${value.toUpperCase()}',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey.shade700,
+                                    fontFamily: 'SF-ProText-Heavy',
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                );
+                              }).toList();
+                            },
                             onChanged: (String? value) {
                               setState(() {
                                 _outputAudioCodec = value;

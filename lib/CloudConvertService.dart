@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
+import 'dart:typed_data';
 
 enum estado { pending, uploading, converting, downloading, finished, error }
 
@@ -16,6 +17,8 @@ class CloudConvertService {
   int? _width = null;
   int? _height = null;
   String? _audioCodec = '';
+  String? _formatoOriginal;
+  String? filePath;
 
 
   // ARRIBA Clave de API real, ABAJO clave de API de sandbox
@@ -27,11 +30,45 @@ class CloudConvertService {
   CloudConvertService();
 
   String getName() {
-    return '$_outputformat | $_videoCodec | $_crf | $_width | $_height | $_audioCodec';
+    return '${_formatoOriginal?.toUpperCase()} to ${_outputformat?.toUpperCase()}';
   }
 
   String getStatus(){
     return estadoActual.toString();
+  }
+
+  String? getFilePath(){
+    return filePath;
+  }
+
+  Future<String> _identifyVideoFormat(String filepath) async {
+    final file = File(filepath);
+    final bytes = await file.readAsBytes();
+
+    const Map<String, List<int>> firmasDeVideo = {
+      'mp4': [0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70],
+      'avi': [0x52, 0x49, 0x46, 0x46],
+      'webm/mkv': [0x1A, 0x45, 0xDF, 0xA3],
+      'flv': [0x46, 0x4C, 0x56, 0x01],
+    };
+
+    for (var formato in firmasDeVideo.keys) {
+      final firma = firmasDeVideo[formato];
+
+      if (_empiezaCon(bytes, firma!)) {
+        return formato;
+      }
+    }
+
+    return 'Formato desconocido';
+  }
+
+  bool _empiezaCon(Uint8List bytes, List<int> firma) {
+    if (bytes.length < firma.length) return false;
+    for (int i = 0; i < firma.length; i++) {
+      if (bytes[i] != firma[i]) return false;
+    }
+    return true;
   }
 
   Future<void> fileUpload(BuildContext context, File file, {outputformat='', videoCodec='', crf=23, width=null, height=null, audioCodec=''}) async {
@@ -42,6 +79,7 @@ class CloudConvertService {
     _width = width;
     _height = height;
     _audioCodec = audioCodec;
+    _formatoOriginal = await _identifyVideoFormat(file.path);
 
     try {
 
@@ -175,7 +213,7 @@ class CloudConvertService {
 
           obtenerUrlDescarga(responseJson['data']['id']);
 
-        } else if (status == 'failed') {
+        } else if (status == 'failed' || status == 'error') {
           estadoActual = estado.error;
           print('La conversión falló.');
         } else {
@@ -197,7 +235,7 @@ class CloudConvertService {
     try {
       Dio dio = Dio();
       Directory? tempDir = await getDownloadsDirectory();
-      String filePath = '${tempDir!.path}/video_convertido.avi';
+      filePath = '${tempDir!.path}/video_convertido.$_outputformat';
 
       print('Descargando archivo en: $filePath');
       estadoActual = estado.downloading;

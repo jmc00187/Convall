@@ -49,7 +49,7 @@ dependencies:
   hive_flutter: ^1.1.0
   build_runner: ^2.3.3
   hive_generator: ^1.1.1
-  marquee: ^2.1.0
+  open_file: ^3.3.0
 
 dev_dependencies:
   flutter_test:

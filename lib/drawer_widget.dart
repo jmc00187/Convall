@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'CloudConvertService.dart';
-import 'package:marquee/marquee.dart';
+import 'package:open_file/open_file.dart';
 
 class DrawerWidget extends StatefulWidget {
 
@@ -40,6 +40,12 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     }
   }
 
+  void _abrirArchivo(String? path) async {
+    final result = await OpenFile.open(path);
+    print('Resultado al abrir el archivo: ${result.message}');
+    print('Ruta del archivo: $path');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -50,47 +56,76 @@ class _DrawerWidgetState extends State<DrawerWidget> {
           children: [
             DrawerHeader(
               decoration: BoxDecoration(color: Flame),
-              child: Text(
-                'Conversiones',
-                style: TextStyle(color: FloralWhite, fontSize: 24),
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: Text(
+                  'Conversiones',
+                  style: TextStyle(
+                    color: FloralWhite,
+                    fontSize: 120,
+                    fontFamily: 'Outward',
+                  ),
+                ),
               ),
             ),
-            ...widget.elementos.reversed.map((elemento) => Container(
-              margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              padding: EdgeInsets.all(16),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Texto que se mueve si es largo
-                  Expanded(
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Text(
-                        elemento.getName(),
-                        style: TextStyle(fontSize: 13),
+            ...widget.elementos.reversed.map((elemento) {
+              bool isFinished = elemento.getStatus() == 'estado.finished';
+
+              return Container(
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black12,
+                      blurRadius: 4,
+                      offset: Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: isFinished
+                          ? () {
+                        print("Abriendo archivo: ${elemento.getFilePath()}");
+                        _abrirArchivo(elemento.getFilePath());
+                      }
+                          : null,
+                      child: Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Text(
+                                  elemento.getName(),
+                                  style: TextStyle(fontSize: 15, fontFamily: 'SF-ProText-Semibold', fontWeight: FontWeight.w600, color: EerieBlack),
+                                ),
+
+                              ),
+                            ),
+                            _getStatusIcon(elemento.getStatus()),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  // Icono según el estado del elemento
-                  _getStatusIcon(elemento.getStatus()),
-                ],
-              ),
-            )),
+                ),
+              );
+
+
+            }),
           ],
         ),
       ),
     );
+
   }
 }
