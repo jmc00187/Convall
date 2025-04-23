@@ -44,12 +44,12 @@ class _paginaVideoState extends State<paginaVideo> {
 
   List<String> _mp4Codecs = ['copy', 'x264', 'x265', 'av1'];
   List<String> _aviCodecs = ['copy', 'x264', 'x265', 'xvid'];
-  List<String> _webmCodecs = ['copy', 'vp8', 'vp9', 'av1'];
+  List<String> _webmCodecs = ['vp8', 'vp9', 'av1'];
   List<String> _mkvCodecs = ['copy', 'x264', 'x265', 'vp8', 'vp9', 'av1'];
   List<String> _flvCodecs = ['copy', 'h264', 'sorenson'];
 
   List<String> _audioCodecs = ['copy', 'none', 'aac', 'aac_he_1', 'aac_he_2', 'opus', 'vorbis'];
-  List<String> _webmAudioCodecs = ['copy', 'none', 'opus', 'vorbis'];
+  List<String> _webmAudioCodecs = ['none', 'opus', 'vorbis'];
 
 
 
@@ -79,10 +79,15 @@ class _paginaVideoState extends State<paginaVideo> {
   {
     if(_videoFile != null)
     {
+      if(_outputFormat == 'webm')
+      {
+        _outputCodec ??= 'vp8';
+        _outputAudioCodec ??= 'opus';
+      }
       _outputCodec ??= 'copy';
       _outputAudioCodec ??= 'copy';
       CloudConvertService ccs1 = CloudConvertService();
-      ccs1.fileUpload(context, _videoFile!,
+      ccs1.fileUpload(context, _videoFile!, _videoFormat!,
         outputformat: _outputFormat!,
         videoCodec: _outputCodec!,
         crf: _crf!.toInt(),
@@ -140,7 +145,7 @@ class _paginaVideoState extends State<paginaVideo> {
     return Scaffold(
       backgroundColor: FloralWhite,
 
-      drawer: DrawerWidget(elementos: elementos,),
+      drawer: DrawerWidget(elementos: elementos),
 
       appBar: AppBar(
         title: const Text(
@@ -868,11 +873,6 @@ class _paginaVideoState extends State<paginaVideo> {
 
 
 
-
-
-
-
-
                       ],
 
 
@@ -902,35 +902,6 @@ class _paginaVideoState extends State<paginaVideo> {
                       ),
 
                       const SizedBox(height: 100),
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
