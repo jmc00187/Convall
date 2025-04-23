@@ -6,8 +6,6 @@ import 'package:convall/pagina_imagen.dart';
 import 'package:convall/pagina_video.dart';
 import 'package:convall/pagina_carpetas.dart';
 
-import 'package:convall/CloudConvertService.dart';
-import 'drawer_widget.dart';
 
 class ConversorPaginaPrincipal extends StatefulWidget {
   const ConversorPaginaPrincipal({super.key});
@@ -67,8 +65,6 @@ class ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
     return Scaffold(
       key: _scaffoldKey,
       extendBody: true,
-      drawer: DrawerWidget(),
-
 
       body: Stack(
         children: [
@@ -85,17 +81,6 @@ class ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
               onPressed: _resetCurrentPage,
               backgroundColor: Flame,
               child: Icon(Icons.refresh_rounded, color: FloralWhite),
-              mini: true,
-            ),
-          ),
-
-          Positioned(
-            top: 70,
-            left: 20,
-            child: FloatingActionButton(
-              onPressed: () {_scaffoldKey.currentState?.openDrawer();},
-              backgroundColor: Flame,
-              child: Icon(Icons.archive_rounded, color: FloralWhite),
               mini: true,
             ),
           ),

@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:video_player/video_player.dart';
 import 'dart:typed_data';
 import 'CloudConvertService.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'drawer_widget.dart';
 
 class paginaVideo extends StatefulWidget {
   const paginaVideo({super.key});
@@ -15,13 +15,6 @@ class paginaVideo extends StatefulWidget {
 
 class _paginaVideoState extends State<paginaVideo> {
 
-  late Box<CloudConvertService> cloudConvertBox;
-
-  @override
-  void initState() {
-    super.initState();
-    _initHive(); // Inicializamos Hive en initState
-  }
 
   static const Color FloralWhite = Color(0xFFFFFCF2);
   static const Color Timberwolf = Color(0xFFCCC5B9);
@@ -29,6 +22,9 @@ class _paginaVideoState extends State<paginaVideo> {
   static const Color EerieBlack = Color(0xFF252422);
   static const Color Flame = Color(0xFFEB5E28);
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  List<CloudConvertService> elementos = [];
 
   File? _videoFile;
   String? _selectedFilePath;
@@ -58,13 +54,6 @@ class _paginaVideoState extends State<paginaVideo> {
 
 
 
-  // Inicializar Hive y abrir el Box
-  Future<void> _initHive() async {
-    await Hive.initFlutter();
-    Hive.registerAdapter(CloudConvertServiceAdapter());
-    cloudConvertBox = await Hive.openBox<CloudConvertService>('cloudConvertServices');
-    setState(() {});
-  }
 
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.video);
@@ -101,8 +90,10 @@ class _paginaVideoState extends State<paginaVideo> {
         audioCodec: _outputAudioCodec!
       );
 
-      cloudConvertBox.add(ccs1);
-      setState(() {});
+      setState(() {
+        elementos.add(ccs1);
+      });
+
 
     }
     else
@@ -149,6 +140,7 @@ class _paginaVideoState extends State<paginaVideo> {
     return Scaffold(
       backgroundColor: FloralWhite,
 
+      drawer: DrawerWidget(elementos: elementos,),
 
       appBar: AppBar(
         title: const Text(
@@ -162,7 +154,32 @@ class _paginaVideoState extends State<paginaVideo> {
         centerTitle: true,
         toolbarHeight: 100,
         backgroundColor: FloralWhite,
+        leading: Builder(
+          builder: (context) => Align(
+            alignment: Alignment(1.5, -0.2),
+            child: SizedBox(
+              width: 40,
+              height: 40,
+              child: Material(
+                color: Flame,
+                borderRadius: BorderRadius.circular(12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () => Scaffold.of(context).openDrawer(),
+                  child: Center(
+                    child: Icon(
+                      Icons.archive_rounded,
+                      color: FloralWhite,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
+
 
 
       body: SingleChildScrollView(
@@ -193,6 +210,7 @@ class _paginaVideoState extends State<paginaVideo> {
                       )
                       : Column(
                     children: [
+
                       ClipRRect(
                         borderRadius: BorderRadius.circular(20),
                         child: LayoutBuilder(
@@ -240,8 +258,6 @@ class _paginaVideoState extends State<paginaVideo> {
                       ),
 
                       const SizedBox(height: 20),
-
-
 
 
                       if(_selectedFilePath != null) ...[

@@ -4,33 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:hive/hive.dart';
-part 'CloudConvertService.g.dart';
 
-enum estado { pending, uploading, converting, finished, error }
+enum estado { pending, uploading, converting, downloading, finished, error }
 
-@HiveType(typeId: 0)
 class CloudConvertService {
 
-  @HiveField(0)
   estado estadoActual = estado.pending;
-
-  @HiveField(1)
   String? _outputformat = '';
-
-  @HiveField(2)
   String? _videoCodec = '';
-
-  @HiveField(3)
   int? _crf = 23;
-
-  @HiveField(4)
   int? _width = null;
-
-  @HiveField(5)
   int? _height = null;
-
-  @HiveField(6)
   String? _audioCodec = '';
 
 
@@ -44,6 +28,10 @@ class CloudConvertService {
 
   String getName() {
     return '$_outputformat | $_videoCodec | $_crf | $_width | $_height | $_audioCodec';
+  }
+
+  String getStatus(){
+    return estadoActual.toString();
   }
 
   Future<void> fileUpload(BuildContext context, File file, {outputformat='', videoCodec='', crf=23, width=null, height=null, audioCodec=''}) async {
@@ -218,7 +206,7 @@ class CloudConvertService {
           print('Descarga en progreso: ${(received / total * 100).toStringAsFixed(0)}%');
         }
       });
-      estadoActual = estado.finished;
+
       print('Descarga completada. Archivo guardado en: $filePath');
     } catch (e) {
       estadoActual = estado.error;
