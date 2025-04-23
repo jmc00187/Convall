@@ -200,13 +200,16 @@ class CloudConvertService {
       String filePath = '${tempDir!.path}/video_convertido.avi';
 
       print('Descargando archivo en: $filePath');
+      estadoActual = estado.downloading;
 
       await dio.download(url, filePath, onReceiveProgress: (received, total) {
         if (total != -1) {
           print('Descarga en progreso: ${(received / total * 100).toStringAsFixed(0)}%');
+
         }
       });
 
+      estadoActual = estado.finished;
       print('Descarga completada. Archivo guardado en: $filePath');
     } catch (e) {
       estadoActual = estado.error;

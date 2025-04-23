@@ -21,18 +21,19 @@ class _DrawerWidgetState extends State<DrawerWidget> {
   static const Color Flame = Color(0xFFEB5E28);
 
   Widget _getStatusIcon(String status) {
+    print('SE HA RECIBIDO EL STATUS: $status');
     switch (status) {
-      case 'pending':
+      case 'estado.pending':
         return Icon(Icons.access_time_filled_rounded, color: Flame);
-      case 'uploading':
+      case 'estado.uploading':
         return Icon(Icons.cloud_upload, color: Flame);
-      case 'converting':
+      case 'estado.converting':
         return Icon(Icons.hourglass_bottom_rounded, color: Flame);
-      case 'downloading':
+      case 'estado.downloading':
         return Icon(Icons.download_rounded, color: Flame);
-      case 'finished':
+      case 'estado.finished':
         return Icon(Icons.done_outline_rounded, color: Flame);
-      case 'error':
+      case 'estado.error':
         return Icon(Icons.error_rounded, color: Flame);
       default:
         return Icon(Icons.help_outline, color: Flame);
@@ -54,7 +55,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 style: TextStyle(color: FloralWhite, fontSize: 24),
               ),
             ),
-            ...widget.elementos.map((elemento) => Container(
+            ...widget.elementos.reversed.map((elemento) => Container(
               margin: EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               padding: EdgeInsets.all(16),
               width: double.infinity,
