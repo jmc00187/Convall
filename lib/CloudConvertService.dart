@@ -22,6 +22,12 @@ class CloudConvertService {
   String? filePath;
   int? _imageQuality = 50;
   String? _imageEngine = '';
+  int? _audioBitrate = 128;
+  double? _volume = 1.0;
+  int? _sample_rate = 44100;
+  String? _trim_start = '';
+  String? _trim_end = '';
+  String? _audioEngine = '';
 
 
   // ARRIBA Clave de API real, ABAJO clave de API de sandbox
@@ -55,7 +61,7 @@ class CloudConvertService {
 
 
 
-  Future<void> fileUpload(BuildContext context, File file, String format, {outputformat='', videoCodec='', crf=23, width=null, height=null, audioCodec='', imageQuality=50, imageEngine=''}) async {
+  Future<void> fileUpload(BuildContext context, File file, String format, {outputformat='', videoCodec='', crf=23, width=null, height=null, audioCodec='', imageQuality=50, imageEngine='', audioBitrate = 128, volume = 1.0, sample_rate = 44100, trim_start = '', trim_end = '', engine = ''}) async {
 
     _outputformat = outputformat.toLowerCase();
     _videoCodec = videoCodec;
@@ -66,6 +72,13 @@ class CloudConvertService {
     _formatoOriginal = format.toLowerCase();
     _imageQuality = imageQuality;
     _imageEngine = imageEngine;
+    _audioBitrate = audioBitrate;
+    _volume = volume;
+    _sample_rate = sample_rate;
+    _trim_start = trim_start;
+    _trim_end = trim_end;
+    _audioEngine = engine;
+
 
     if(_formatoOriginal == 'jpg' ||
         _formatoOriginal == 'png' ||
@@ -82,6 +95,15 @@ class CloudConvertService {
         _formatoOriginal == 'flv')
     {
       _fileType = 'video';
+    }
+    if(_formatoOriginal == 'mp3' ||
+        _formatoOriginal == 'aac' ||
+        _formatoOriginal == 'flac' ||
+        _formatoOriginal == 'm4a' ||
+        _formatoOriginal == 'wav' ||
+        _formatoOriginal == 'aiff' )
+    {
+      _fileType = 'audio';
     }
 
     try {
@@ -189,6 +211,20 @@ class CloudConvertService {
           'height': _height,
           'quality': _imageQuality,
           'engine': _imageEngine
+        });
+      }
+      if(_fileType == 'audio') {
+        body = json.encode({
+          'input': {'file': fileId},
+          'output_format': _outputformat,
+          'autostart': true,
+          'audio_codec': _audioCodec,
+          'audio_bitrate': _audioBitrate,
+          'volume': _volume,
+          'sample_rate': _sample_rate,
+          'trim_start': _trim_start,
+          'trim_end': _trim_end,
+          'engine': _audioEngine
         });
       }
 

@@ -53,6 +53,17 @@ class _paginaVideoState extends State<paginaVideo> {
 
 
 
+  bool isReadyToDownload()
+  {
+    if(_outputFormat == null)
+    {
+      return false;
+    }
+    else
+    {
+      return true;
+    }
+  }
 
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.video);
@@ -881,9 +892,9 @@ class _paginaVideoState extends State<paginaVideo> {
                       const SizedBox(height: 20),
 
                       ElevatedButton(
-                        onPressed: _convertVideo,
+                        onPressed: isReadyToDownload() ? _convertVideo : null,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: BlackOlive,
+                          backgroundColor: isReadyToDownload() ? BlackOlive : BlackOlive.withOpacity(0.5),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),

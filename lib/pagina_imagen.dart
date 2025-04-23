@@ -47,6 +47,18 @@ class _paginaImagenState extends State<paginaImagen> {
   List<String> _outputFormats = ['JPG', 'PNG', 'GIF', 'BMP', 'WEBP'];
   List<String> _outputEngines = ['imagemagick', 'graphicsmagick'];
 
+  bool isReadyToDownload()
+  {
+    if(_outputFormat == null)
+    {
+      return false;
+    }
+    else
+    {
+      return true;
+    }
+  }
+
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
@@ -653,9 +665,9 @@ class _paginaImagenState extends State<paginaImagen> {
 
 
                             ElevatedButton(
-                                onPressed: _convertImage,
+                              onPressed: isReadyToDownload() ? _convertImage : null,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: BlackOlive,
+                                backgroundColor: isReadyToDownload() ? BlackOlive : BlackOlive.withOpacity(0.5),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
