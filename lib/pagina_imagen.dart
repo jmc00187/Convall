@@ -98,9 +98,16 @@ class _paginaImagenState extends State<paginaImagen> {
       return "BMP";
     } else if (bytes[0] == 0x52 && bytes[1] == 0x49 && bytes[2] == 0x46 && bytes[3] == 0x46) {
       return "WEBP";
+    } else {
+      return _getFormat(_selectedFilePath!);
     }
 
     return "Desconocido";
+  }
+
+  String _getFormat(String path) {
+    final extension = path.split('.').last;
+    return extension;
   }
 
 

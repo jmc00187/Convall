@@ -114,7 +114,7 @@ class _paginaAudioState extends State<paginaAudio> {
 
   String _getAudioFormat(String path) {
     final extension = path.split('.').last;
-    return extension.toUpperCase();
+    return extension;
   }
 
   String _formatDuration(Duration d) {
