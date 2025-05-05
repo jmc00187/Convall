@@ -9,6 +9,7 @@ import 'package:video_player/video_player.dart';
 import 'dart:typed_data';
 import 'CloudConvertService.dart';
 import 'drawer_widget.dart';
+import 'package:path/path.dart' as p;
 
 
 /// Esta pagina es la encargada de la conversión de videos.
@@ -156,7 +157,16 @@ class _paginaVideoState extends State<paginaVideo> {
       }
     }
 
-    return 'Formato desconocido';
+    return detectarFormatoArchivo(filepath);
+  }
+
+  String detectarFormatoArchivo(String path) {
+    final nombreArchivo = p.basename(path);
+    final partes = nombreArchivo.split('.');
+    if (partes.length < 2) {
+      return 'desconocido';
+    }
+    return partes.last.toLowerCase();
   }
 
   bool _empiezaCon(Uint8List bytes, List<int> firma) {

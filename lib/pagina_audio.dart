@@ -130,7 +130,7 @@ class _paginaAudioState extends State<paginaAudio> {
   /// Obtiene el formato del audio a partir de la ruta del archivo.
   String _getAudioFormat(String path) {
     final extension = path.split('.').last;
-    return extension.toUpperCase();
+    return extension;
   }
 
   /// Obtiene la duración del audio en formato de texto.
