@@ -1,3 +1,7 @@
+/*
+ * @author: Juan Martos Cuevas
+ */
+
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
@@ -5,6 +9,11 @@ import 'package:video_player/video_player.dart';
 import 'dart:typed_data';
 import 'CloudConvertService.dart';
 import 'drawer_widget.dart';
+
+
+/// Esta pagina es la encargada de la conversión de videos.
+/// Una vez has abierto un archivo, se muestra un reproductor y todas las
+/// opciones de conversión disponibles personalizadas para tu archivo.
 
 class paginaVideo extends StatefulWidget {
   const paginaVideo({super.key});
@@ -15,22 +24,27 @@ class paginaVideo extends StatefulWidget {
 
 class _paginaVideoState extends State<paginaVideo> {
 
-
+  // Colores principales de la aplicación
   static const Color FloralWhite = Color(0xFFFFFCF2);
   static const Color Timberwolf = Color(0xFFCCC5B9);
   static const Color BlackOlive = Color(0xFF403D39);
   static const Color EerieBlack = Color(0xFF252422);
   static const Color Flame = Color(0xFFEB5E28);
 
-
+  // Lista de elementos convertidos en la sesión actual
   List<CloudConvertService> elementos = [];
 
+  // Variables para almacenar el archivo de video y su información
   File? _videoFile;
   String? _selectedFilePath;
   String? _videoFormat;
   int? _altoOriginal;
   int? _anchoOriginal;
+
+  // Controlador de video para reproducir el video seleccionado
   VideoPlayerController? _videoController;
+
+  // Parametros de salida
   String? _outputFormat;
   String? _outputCodec;
   double? _crf = 23;
@@ -38,10 +52,10 @@ class _paginaVideoState extends State<paginaVideo> {
   int? _outputWidth;
   String? _outputAudioCodec;
 
-
-
+  // Posibles formatos de salida
   List<String> _outputFormats = ['mp4', 'avi', 'webm', 'mkv', 'flv'];
 
+  // Posibles codecs de video y audio para cada formato
   List<String> _mp4Codecs = ['copy', 'x264', 'x265', 'av1'];
   List<String> _aviCodecs = ['copy', 'x264', 'x265', 'xvid'];
   List<String> _webmCodecs = ['vp8', 'vp9', 'av1'];
@@ -52,7 +66,7 @@ class _paginaVideoState extends State<paginaVideo> {
   List<String> _webmAudioCodecs = ['none', 'opus', 'vorbis'];
 
 
-
+  /// Verifica si el botón de descarga debería estar habilitado o no.
   bool isReadyToDownload()
   {
     if(_outputFormat == null)
@@ -65,6 +79,8 @@ class _paginaVideoState extends State<paginaVideo> {
     }
   }
 
+  /// Abre el selector de archivos para elegir un audio.
+  /// Una vez seleccionado, se inicializa el reproductor y se obtienen los datos del archivo.
   Future<void> _pickFile() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.video);
     if (result != null) {
@@ -86,6 +102,8 @@ class _paginaVideoState extends State<paginaVideo> {
 
   }
 
+  /// Sube todos los parametros para la conversión a la clase CloudConvertService
+  /// Si hay parametros que el usuario no ha seleccionado, se ponen por defecto.
   void _convertVideo()
   {
     if(_videoFile != null)
@@ -118,6 +136,7 @@ class _paginaVideoState extends State<paginaVideo> {
     }
   }
 
+  /// Identifica el formato del video a partir de su firma.
   Future<String> _identifyVideoFormat(String filepath) async {
     final file = File(filepath);
     final bytes = await file.readAsBytes();
@@ -156,8 +175,10 @@ class _paginaVideoState extends State<paginaVideo> {
     return Scaffold(
       backgroundColor: FloralWhite,
 
+      // Menu lateral de conversiones
       drawer: DrawerWidget(elementos: elementos),
 
+      // Logo arriba en grande
       appBar: AppBar(
         title: const Text(
           'Convall',
@@ -206,6 +227,8 @@ class _paginaVideoState extends State<paginaVideo> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 GestureDetector(
+                  // Al hacer click en el icono, se abre el selector de archivos
+                  // Si ya hay un video seleccionado, se reproduce o pausa
                   onTap: () {
                     if (_videoController != null && _videoController!.value.isInitialized) {
                       setState(() {
@@ -227,6 +250,7 @@ class _paginaVideoState extends State<paginaVideo> {
                       : Column(
                     children: [
 
+                      // Reproductor de video
                       ClipRRect(
                         borderRadius: BorderRadius.circular(20),
                         child: LayoutBuilder(
@@ -253,6 +277,8 @@ class _paginaVideoState extends State<paginaVideo> {
                           },
                         ),
                       ),
+
+                      // Indica el formato del video
                       Container(
                         width: 100,
                         padding: EdgeInsets.all(10),
@@ -277,6 +303,9 @@ class _paginaVideoState extends State<paginaVideo> {
 
 
                       if(_selectedFilePath != null) ...[
+
+
+                        //Muestra una lista para seleccionar un formato de salida
 
                         DropdownButtonFormField<String>(
                           value: _outputFormat,
@@ -332,6 +361,8 @@ class _paginaVideoState extends State<paginaVideo> {
 
 
                         const SizedBox(height: 20),
+
+                        // Muestra una lista de codecs de video dependiendo del formato seleccionado
 
                         if(_outputFormat == 'mp4') ...[
                           DropdownButtonFormField<String>(
@@ -604,6 +635,7 @@ class _paginaVideoState extends State<paginaVideo> {
                           const SizedBox(height: 20),
                         ],
 
+                        // Barra deslizable para aumentar o reducir la compresión de video
 
                         Container(
                             width: double.infinity,
@@ -659,6 +691,8 @@ class _paginaVideoState extends State<paginaVideo> {
                         ),
 
                         const SizedBox(height: 20),
+
+                        // Campos de texto para especificar la resolución del video
 
                         Container(
                           width: double.infinity,
@@ -764,6 +798,7 @@ class _paginaVideoState extends State<paginaVideo> {
                           ),
                         ),
 
+                        // Se muestra una lista de codecs de audio dependiendo del formato de salida
 
                         if(_outputFormat == 'webm') ...[
 
@@ -888,6 +923,7 @@ class _paginaVideoState extends State<paginaVideo> {
 
 
 
+                      // Boton de descarga
 
                       const SizedBox(height: 20),
 

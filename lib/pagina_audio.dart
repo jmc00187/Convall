@@ -1,3 +1,7 @@
+/*
+ * @author: Juan Martos Cuevas
+ */
+
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +10,9 @@ import 'CloudConvertService.dart';
 import 'drawer_widget.dart';
 
 
+/// Esta pagina es la encargada de la conversión de audios.
+/// Una vez has abierto un archivo, se muestra un reproductor y todas las
+/// opciones de conversión disponibles personalizadas para tu archivo.
 
 class paginaAudio extends StatefulWidget {
   const paginaAudio({super.key});
@@ -16,6 +23,7 @@ class paginaAudio extends StatefulWidget {
 
 class _paginaAudioState extends State<paginaAudio> {
 
+  // Colores principales de la aplicación
   static const Color FloralWhite = Color(0xFFFFFCF2);
   static const Color Timberwolf = Color(0xFFCCC5B9);
   static const Color BlackOlive = Color(0xFF403D39);
@@ -24,16 +32,19 @@ class _paginaAudioState extends State<paginaAudio> {
 
 
 
+  // Variables para el reproductor
   late AudioPlayer _player;
   Duration _duration = Duration.zero;
   Duration _position = Duration.zero;
 
 
+  // Datos del audio seleccionado
   File? _audioFile;
   String? _selectedFilePath;
   String? _audioFormat;
   String? _audioDuration;
 
+  // Variables para la conversión
   String? _outputFormat;
   String? _outputAudioCodec;
   int? _outputAudioBitrate = 128;
@@ -43,7 +54,7 @@ class _paginaAudioState extends State<paginaAudio> {
   String? _outputTrimEnd;
   String? _outputEngine = 'ffmpeg';
 
-
+  // Posibles formatos de salida
   List<String> _outputFormats = ['mp3', 'aac', 'flac', 'm4a', 'wav', 'aiff'];
   List<String> _mp3AudioCodecs = ['mp3'];
   List<String> _aacAudioCodecs = ['aac', 'aac_he_1', 'aac_he_2'];
@@ -52,12 +63,14 @@ class _paginaAudioState extends State<paginaAudio> {
   List<String> _wavAudioCodecs = ['pcm_s16le', 'pcm_s24le', 'pcm_s32le'];
   List<String> _aiffAudioCodecs = ['pcm_s16le', 'pcm_s24le', 'pcm_s32le'];
 
+  // Posibles motores de conversión
   List<String> _outputEngines = ['ffmpeg'];
 
-
+  // Lista de elementos convertidos en la sesión actual
   List<CloudConvertService> elementos = [];
 
 
+  /// Verifica si el botón de descarga debería estar habilitado o no.
   bool isReadyToDownload()
   {
     if(_outputFormat == null)
@@ -76,6 +89,8 @@ class _paginaAudioState extends State<paginaAudio> {
     super.dispose();
   }
 
+  /// Abre el selector de archivos para elegir un audio.
+  /// Una vez seleccionado, se inicializa el reproductor y se obtienen los datos del archivo.
   Future<void> _pickAudio() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.audio);
 
@@ -112,17 +127,21 @@ class _paginaAudioState extends State<paginaAudio> {
     }
   }
 
+  /// Obtiene el formato del audio a partir de la ruta del archivo.
   String _getAudioFormat(String path) {
     final extension = path.split('.').last;
     return extension.toUpperCase();
   }
 
+  /// Obtiene la duración del audio en formato de texto.
   String _formatDuration(Duration d) {
     final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
     final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
     return "$minutes:$seconds";
   }
 
+  /// Sube todos los parametros para la conversión a la clase CloudConvertService
+  /// Si hay parametros que el usuario no ha seleccionado, se ponen por defecto.
   void _convertAudio()
   {
     if(_audioFile != null)
@@ -134,7 +153,7 @@ class _paginaAudioState extends State<paginaAudio> {
       if(_outputFormat == 'wav'){_outputAudioCodec ??= 'pcm_s16le';}
       if(_outputFormat == 'aiff'){_outputAudioCodec ??= 'pcm_s16le';}
 
-      _outputEngine ??= 'imagemagick';
+      _outputEngine ??= 'ffmpeg';
       CloudConvertService ccs1 = CloudConvertService();
       ccs1.fileUpload(context, _audioFile!, _audioFormat!,
         outputformat: _outputFormat,
@@ -165,8 +184,10 @@ class _paginaAudioState extends State<paginaAudio> {
     return Scaffold(
       backgroundColor: FloralWhite,
 
+      // Menu lateral de conversiones
       drawer: DrawerWidget(elementos: elementos),
 
+      // Logo arriba en grande
       appBar: AppBar(
         title: const Text(
           'Convall',
@@ -214,6 +235,7 @@ class _paginaAudioState extends State<paginaAudio> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 GestureDetector(
+                  // Al hacer click en el icono, se abre el selector de archivos
                   onTap: _pickAudio,
                   child: _selectedFilePath == null
                       ? Column(
@@ -225,7 +247,7 @@ class _paginaAudioState extends State<paginaAudio> {
                       : Column(
                         children: [
 
-
+                          // Reproductor de audio
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
@@ -311,6 +333,7 @@ class _paginaAudioState extends State<paginaAudio> {
                             ),
                           ),
 
+                          // Indica el formato del audio
                           Container(
                             width: 100,
                             padding: EdgeInsets.all(10),
@@ -331,6 +354,7 @@ class _paginaAudioState extends State<paginaAudio> {
                             ),
                           ),
 
+                          //Muestra una lista para seleccionar un formato de salida
                           const SizedBox(height: 20),
                           DropdownButtonFormField<String>(
                             value: _outputFormat,
@@ -379,11 +403,13 @@ class _paginaAudioState extends State<paginaAudio> {
                             onChanged: (String? value) {
                               setState(() {
                                 _outputFormat = value;
+                                _outputAudioCodec = null;
                               });
                             },
                           ),
 
 
+                          // A partir de aqui, se muestra una lista de codecs para cada uno de los formatos de audio de salida
 
                           if (_outputFormat == 'mp3') ... [
 
@@ -727,6 +753,8 @@ class _paginaAudioState extends State<paginaAudio> {
 
                           const SizedBox(height: 20),
 
+                          // Muestra un campo para seleccionar el bitrate de salida
+
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                             decoration: BoxDecoration(
@@ -785,6 +813,7 @@ class _paginaAudioState extends State<paginaAudio> {
 
                           const SizedBox(height: 20),
 
+                          // Barra deslizable para aumentar o reducir el volumen
 
                           Container(
                               width: double.infinity,
@@ -849,6 +878,8 @@ class _paginaAudioState extends State<paginaAudio> {
 
                           const SizedBox(height: 20),
 
+                          // Campo para seleccionar la frecuencia de muestreo de salida
+
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                             decoration: BoxDecoration(
@@ -907,6 +938,8 @@ class _paginaAudioState extends State<paginaAudio> {
 
 
                           const SizedBox(height: 20),
+
+                          // Campos para modificar la duración del audio
 
                           Container(
                             width: double.infinity,
@@ -1020,6 +1053,9 @@ class _paginaAudioState extends State<paginaAudio> {
                           ),
 
                           const SizedBox(height: 20),
+
+                          // Muestra una lista para seleccionar el motor de conversión
+
                           DropdownButtonFormField<String>(
                             value: _outputEngine,
                             decoration: InputDecoration(
@@ -1066,13 +1102,15 @@ class _paginaAudioState extends State<paginaAudio> {
                             },
                             onChanged: (String? value) {
                               setState(() {
-                                _outputAudioCodec = value;
+                                _outputEngine = value;
                               });
                             },
                           ),
 
 
                           const SizedBox(height: 20),
+
+                          // Botón de descarga
 
 
                           ElevatedButton(

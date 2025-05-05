@@ -1,6 +1,13 @@
+/*
+ * @author: Juan Martos Cuevas
+ */
+
 import 'package:flutter/material.dart';
 import 'CloudConvertService.dart';
 import 'package:open_file/open_file.dart';
+
+/// Esta clase es un widget que representa el menú lateral en el cual se muestran las conversiones realizadas.
+/// Muestra el estado actual de la conversión y permite abrir el archivo una vez ha sido descargado.
 
 class DrawerWidget extends StatefulWidget {
 
@@ -14,12 +21,14 @@ class DrawerWidget extends StatefulWidget {
 
 class _DrawerWidgetState extends State<DrawerWidget> {
 
+  // Colores principales de la aplicación
   static const Color FloralWhite = Color(0xFFFFFCF2);
   static const Color Timberwolf = Color(0xFFCCC5B9);
   static const Color BlackOlive = Color(0xFF403D39);
   static const Color EerieBlack = Color(0xFF252422);
   static const Color Flame = Color(0xFFEB5E28);
 
+  // Función para obtener el icono correspondiente al estado de la conversión
   Widget _getStatusIcon(String status) {
     print('SE HA RECIBIDO EL STATUS: $status');
     switch (status) {
@@ -40,6 +49,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
     }
   }
 
+  // Abre el archivo seleccionado en la aplicación por defecto
   void _abrirArchivo(String? path) async {
     final result = await OpenFile.open(path);
     print('Resultado al abrir el archivo: ${result.message}');
@@ -54,6 +64,8 @@ class _DrawerWidgetState extends State<DrawerWidget> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
+
+            // Encabezado del menú lateral
             DrawerHeader(
               decoration: BoxDecoration(color: Flame),
               child: Align(
@@ -68,6 +80,9 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                 ),
               ),
             ),
+
+            // Lista de conversiones, se muestra la lista al reves, de modo que
+            // el último elemento agregado sea el que aparece mas arriba
             ...widget.elementos.reversed.map((elemento) {
               bool isFinished = elemento.getStatus() == 'estado.finished';
 

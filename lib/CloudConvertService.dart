@@ -1,17 +1,35 @@
+/*
+ * @author: Juan Martos Cuevas
+ */
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:typed_data';
+import 'package:permission_handler/permission_handler.dart';
 
 enum estado { pending, uploading, converting, downloading, finished, error }
 
+/// Esta clase se encarga de la subida y conversión de archivos a través de la API de CloudConvert.
+///
+/// Entra en acción una vez seleccionas el botón DESCARGAR en la interfaz de usuario. Los procesos
+/// son:
+///
+///  - fileUpload: Sube el archivo a la API de CloudConvert.
+///  - fileConvert: Se le pide a CloudConvert que convierta el archivo subido.
+///  - monitorizarConversion: Se espera hasta que el archivo haya sido convertido para avanzar.
+///  - obtenerUrlDescarga: Se le pide a CloudConvert que nos dé la URL de descarga del archivo convertido.
+///  - downloadFile: Descarga el archivo convertido a la carpeta de descargas del dispositivo.
+
 class CloudConvertService {
 
-  String? _fileType;
+  // Estado de la conversión que se va actualizando a medida que avanza el proceso.
   estado estadoActual = estado.pending;
+
+  // Variables para almacenar cada uno de los posibles parametros que se le pueden pasar a la API segun el tipo de archivo
+  String? _fileType;
   String? _outputformat = '';
   String? _videoCodec = '';
   int? _crf = 23;
@@ -38,6 +56,7 @@ class CloudConvertService {
 
   CloudConvertService();
 
+  /// Función encargada de generar un nombre para mostrar en la lista de conversiones en la interfaz de usuario.
   String getName() {
     if(_fileType == 'video'){
       return '${_formatoOriginal?.toUpperCase()} to ${_outputformat?.toUpperCase()} | ${_videoCodec?.toUpperCase()}';
@@ -51,17 +70,24 @@ class CloudConvertService {
 
   }
 
+  /// Función encargada de devolver el estado de la conversión.
   String getStatus(){
     return estadoActual.toString();
   }
 
+  /// Función encargada de devolver la ruta del archivo original.
   String? getFilePath(){
     return filePath;
   }
 
 
 
+  /// Sube el archivo a la API de CloudConvert.
+  /// Detecta que tipo de archivo es: imagen, video o audio. En función de esto, decide que parametros de subida usar.
   Future<void> fileUpload(BuildContext context, File file, String format, {outputformat='', videoCodec='', crf=23, width=null, height=null, audioCodec='', imageQuality=50, imageEngine='', audioBitrate = 128, volume = 1.0, sample_rate = 44100, trim_start = '', trim_end = '', engine = ''}) async {
+
+    // Antes de nada, se comprueban los permisos de almacenamiento
+    await checkStoragePermission();
 
     _outputformat = outputformat.toLowerCase();
     _videoCodec = videoCodec;
@@ -111,7 +137,7 @@ class CloudConvertService {
       estadoActual = estado.uploading;
 
 
-      // Paso 1: Obtener la URL de subida
+      // Primero se obtiene la url de subida
       var url = Uri.parse('https://api.sandbox.cloudconvert.com/v2/import/upload');
       var response = await http.post(
         url,
@@ -133,14 +159,14 @@ class CloudConvertService {
         return;
       }
 
-      // Obtener la URL de subida y los parámetros de AWS S3
+      // Se saca la url de la respuesta
       String uploadUrl = responseJson['data']['result']['form']['url'];
       Map<String, dynamic> parameters = responseJson['data']['result']['form']['parameters'];
 
       print('URL de subida: $uploadUrl');
       print('Parámetros de subida: $parameters');
 
-      // Paso 2: Subir el archivo a la URL de S3 con los parámetros requeridos
+      // Se sube el archivo a la URL obtenida
       var request = http.MultipartRequest('POST', Uri.parse(uploadUrl));
 
       // Agregar parámetros como campos del formulario
@@ -156,17 +182,14 @@ class CloudConvertService {
       if (uploadResponse.statusCode == 201) {
         print('Archivo subido correctamente.');
 
-        // Paso 3: Obtener el ID del archivo subido
+        // Guardo el id del archivo subido
         String fileId = responseJson['data']['id'];
 
-        // Paso 4: Iniciar conversión con el fileId
+        // Se inicia la conversion de la id obtenida anteriormente
         await fileConvert(fileId);
 
-        // Ocultar SnackBar después de completar la subida y conversión
-        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
       } else {
-        print('Error al subir el archivo a S3: ${uploadResponse.statusCode}');
+        print('Error al subir el archivo: ${uploadResponse.statusCode}');
       }
     } catch (e) {
       print('Error: $e');
@@ -174,6 +197,7 @@ class CloudConvertService {
 
   }
 
+  /// Indica como convertir el archivo subido a la API de CloudConvert.
   Future<void> fileConvert(String fileId) async {
     try {
 
@@ -183,12 +207,14 @@ class CloudConvertService {
       print("FILE TYPE: $_fileType");
       print("=====================");
 
+      // Se crea un cuerpo 'base' para la petición a partir del cual modificar según el tipo de archivo
       var body = json.encode({
         'input': {'file': fileId},
         'output_format': _outputformat,
         'autostart': true
       });
 
+      // Se modifica el cuerpo según el tipo de archivo
       if(_fileType == 'video')
       {
         body = json.encode({
@@ -228,7 +254,7 @@ class CloudConvertService {
         });
       }
 
-
+      // Se espera la respuesta de la API
       var response = await http.post(
         url,
         headers: {
@@ -243,7 +269,7 @@ class CloudConvertService {
         String taskId = responseJson['data']['id'];
         print('Tarea de conversión creada con ID: $taskId');
 
-
+        // Se inicia la monitorización de la conversión
         await monitorizarConversion(taskId);
 
       } else {
@@ -258,9 +284,11 @@ class CloudConvertService {
     }
   }
 
+  /// Monitorea el estado de la conversión hasta que se complete o falle.
   Future<void> monitorizarConversion(String taskId) async {
     try {
 
+      // Se le pide a la API el estado de la conversión
       var url = Uri.parse('https://api.sandbox.cloudconvert.com/v2/tasks/$taskId');
       var response = await http.get(url, headers: {
         'Authorization': 'Bearer $apiKey',
@@ -274,14 +302,18 @@ class CloudConvertService {
         if (status == 'finished') {
           print('Conversión completada.');
 
-
+          // Una vez terminada la conversión, se obtiene la URL de descarga
           obtenerUrlDescarga(responseJson['data']['id']);
 
         } else if (status == 'failed' || status == 'error') {
+
           estadoActual = estado.error;
           print('La conversión falló.');
+
         } else {
+
           print('La conversión aún está en progreso...');
+
           // Volver a intentar en algunos segundos
           await Future.delayed(Duration(seconds: 5));
           await monitorizarConversion(taskId);
@@ -295,8 +327,10 @@ class CloudConvertService {
     }
   }
 
+  /// Descarga el archivo convertido a la carpeta de descargas del dispositivo.
   Future<void> downloadFile(String url) async {
     try {
+      // Se obtiene la carpeta de descargas del dispositivo
       Dio dio = Dio();
       Directory? tempDir = await getDownloadsDirectory();
       filePath = '${tempDir!.path}/ConvallFile.$_outputformat';
@@ -304,6 +338,7 @@ class CloudConvertService {
       print('Descargando archivo en: $filePath');
       estadoActual = estado.downloading;
 
+      // Se inicia la descarga
       await dio.download(url, filePath, onReceiveProgress: (received, total) {
         if (total != -1) {
           print('Descarga en progreso: ${(received / total * 100).toStringAsFixed(0)}%');
@@ -320,18 +355,17 @@ class CloudConvertService {
   }
 
 
-
-
-
+  /// Función encargada de obtener la URL de descarga del archivo convertido.
   Future<void> obtenerUrlDescarga(String fileId) async {
     var url = Uri.parse('https://api.sandbox.cloudconvert.com/v2/export/url');
 
-    // Cuerpo de la solicitud POST
+    // Cuerpo de la solicitud
     var body = json.encode({
       "input": fileId,
       "archive_multiple_files": false,
     });
 
+    // Se espera la respuesta de la API
     var response = await http.post(
       url,
       headers: {
@@ -342,6 +376,9 @@ class CloudConvertService {
     );
     var responseJson = json.decode(response.body);
 
+    // Aqui obtenermos una segunda respuesta despues de esperar 2 segundos.
+    // Esto es porque la API de CloudConvert no devuelve la URL de descarga inmediatamente, sino que
+    // primero devuelve un ID de tarea y luego se debe consultar para obtener la URL.
     await Future.delayed(Duration(seconds: 2));
     var urlFinished = Uri.parse('https://api.sandbox.cloudconvert.com/v2/tasks/${responseJson['data']['id']}?include=payload');
     var responseFinished = await http.get(
@@ -352,9 +389,6 @@ class CloudConvertService {
     );
 
     var responseFinishedJson = json.decode(responseFinished.body);
-
-
-
 
     if (responseFinished.statusCode == 200) {
 
@@ -376,6 +410,39 @@ class CloudConvertService {
 
 
 
+  }
+
+  /// Función encargada de comprobar si se tienen los permisos necesarios
+  /// para acceder a la carpeta de descargas.
+  Future<bool> checkStoragePermission() async {
+    var statusStorage = await Permission.storage.status;
+
+    if (statusStorage.isPermanentlyDenied) {
+      /*ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Storage permission permanently denied'),
+        ),
+      );*/
+      return false;
+    } else {
+      statusStorage = await Permission.storage.request();
+      if (statusStorage.isGranted) {
+
+        /*ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Storage permission granted'),
+          ),
+        );*/
+        return true;
+      } else {
+        /*ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Storage permission denied'),
+          ),
+        );*/
+        return false;
+      }
+    }
   }
 
 

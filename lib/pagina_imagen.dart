@@ -1,3 +1,7 @@
+/*
+ * @author: Juan Martos Cuevas
+ */
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
@@ -5,10 +9,12 @@ import 'package:image/image.dart' as img;
 import 'dart:typed_data';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'CloudConvertService.dart';
 import 'drawer_widget.dart';
+
+/// Esta pagina es la encargada de la conversión de imagenes.
+/// Una vez has abierto un archivo, se muestra la imagen y todas las
+/// opciones de conversión disponibles personalizadas para tu archivo.
 
 class paginaImagen extends StatefulWidget {
   const paginaImagen({super.key});
@@ -21,20 +27,25 @@ class paginaImagen extends StatefulWidget {
 
 
 class _paginaImagenState extends State<paginaImagen> {
+
+  // Colores principales de la aplicación
   static const Color FloralWhite = Color(0xFFFFFCF2);
   static const Color Timberwolf = Color(0xFFCCC5B9);
   static const Color BlackOlive = Color(0xFF403D39);
   static const Color EerieBlack = Color(0xFF252422);
   static const Color Flame = Color(0xFFEB5E28);
 
+  // Lista de elementos que se han convertido en la sesión actual
   List<CloudConvertService> elementos = [];
 
-
+  // Información de la imagen seleccionada
   File? _imageFile;
   String? _selectedFilePath;
   String? _imageFormat;
   int? _altoOriginal;
   int? _anchoOriginal;
+
+  // Parámetros de salida
   String? _outputFormat;
   int? _outputWidth;
   int? _outputHeight;
@@ -43,10 +54,13 @@ class _paginaImagenState extends State<paginaImagen> {
 
 
 
-
+  // Posibles formatos de salida
   List<String> _outputFormats = ['JPG', 'PNG', 'GIF', 'BMP', 'WEBP'];
+
+  // Posibles motores de procesamiento
   List<String> _outputEngines = ['imagemagick', 'graphicsmagick'];
 
+  /// Verifica si el botón de descarga debería estar habilitado o no.
   bool isReadyToDownload()
   {
     if(_outputFormat == null)
@@ -59,6 +73,8 @@ class _paginaImagenState extends State<paginaImagen> {
     }
   }
 
+  /// Abre el selector de archivos para elegir una imagen.
+  /// Una vez seleccionado, se obtienen los datos del archivo.
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
@@ -84,10 +100,10 @@ class _paginaImagenState extends State<paginaImagen> {
     }
   }
 
+  /// Identifica el formato de la imagen a partir de los primeros bytes del archivo.
   String _identifyImageFormat(List<int> bytes) {
     if (bytes.length < 12) return "Desconocido";
 
-    // Identificación de formatos
     if (bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF) {
       return "JPG";
     } else if (bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47) {
@@ -105,39 +121,8 @@ class _paginaImagenState extends State<paginaImagen> {
 
 
 
-  Future<bool> checkStoragePermission() async {
-    var statusStorage = await Permission.storage.status;
-    var statusPhotos = await Permission.photos.status;
-
-    if (statusStorage.isPermanentlyDenied || statusPhotos.isPermanentlyDenied) {
-      /*ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Storage permission permanently denied'),
-        ),
-      );*/
-      return false;
-    } else {
-      statusStorage = await Permission.storage.request();
-      statusPhotos = await Permission.photos.request();
-      if (statusStorage.isGranted || statusPhotos.isGranted) {
-
-        /*ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Storage permission granted'),
-          ),
-        );*/
-        return true;
-      } else {
-        /*ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Storage permission denied'),
-          ),
-        );*/
-        return false;
-      }
-    }
-  }
-
+  /// Sube todos los parametros para la conversión a la clase CloudConvertService
+  /// Si hay parametros que el usuario no ha seleccionado, se ponen por defecto.
   void _convertImage()
   {
     if(_imageFile != null)
@@ -169,8 +154,10 @@ class _paginaImagenState extends State<paginaImagen> {
     return Scaffold(
       backgroundColor: FloralWhite,
 
+      // Menu lateral de conversiones
       drawer: DrawerWidget(elementos: elementos),
 
+      // Logo arriba en grande
       appBar: AppBar(
         title: const Text(
           'Convall',
@@ -218,6 +205,7 @@ class _paginaImagenState extends State<paginaImagen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 GestureDetector(
+                  // Al hacer click en la imagen, se abre el selector de archivos
                   onTap: _pickImage,
                   child: _selectedFilePath == null
                       ? Column(
@@ -228,6 +216,8 @@ class _paginaImagenState extends State<paginaImagen> {
                         )
                       : Column(
                           children: [
+
+                            // Se muestra la imagen seleccionada
                             ClipRRect(
                               borderRadius: BorderRadius.circular(20),
                               child: LayoutBuilder(
@@ -244,6 +234,8 @@ class _paginaImagenState extends State<paginaImagen> {
                                 },
                               ),
                             ),
+
+                            // Se muestra el formato de la imagen
                             Container(
                                 width: 100,
                                 padding: EdgeInsets.all(10),
@@ -265,8 +257,10 @@ class _paginaImagenState extends State<paginaImagen> {
                             ),
 
 
-
                             const SizedBox(height: 20),
+
+                            // Desplegable para seleccionar el formato de salida
+
                             DropdownButtonFormField<String>(
                               value: _outputFormat,
                               decoration: InputDecoration(
@@ -321,6 +315,10 @@ class _paginaImagenState extends State<paginaImagen> {
 
 
                             const SizedBox(height: 20),
+
+                            // Desplegable para seleccionar el motor de procesamiento
+
+
                             DropdownButtonFormField<String>(
                               value: _outputEngine,
                               decoration: InputDecoration(
@@ -376,6 +374,8 @@ class _paginaImagenState extends State<paginaImagen> {
 
 
                             const SizedBox(height: 20),
+
+                            // Cuadros de texto para seleccionar la resolución de la imagen
 
                             Container(
                               width: double.infinity,
@@ -482,6 +482,8 @@ class _paginaImagenState extends State<paginaImagen> {
                             ),
 
 
+                            // A partir de aqui, se muestran los posibles parametros
+                            // para cada tipo de archivo
 
                             if(_outputFormat == 'PNG') ...[
 
@@ -663,6 +665,7 @@ class _paginaImagenState extends State<paginaImagen> {
                             const SizedBox(height: 20),
 
 
+                            // Botón para descargar la imagen convertida
 
                             ElevatedButton(
                               onPressed: isReadyToDownload() ? _convertImage : null,

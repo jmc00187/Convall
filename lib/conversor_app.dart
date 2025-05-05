@@ -1,3 +1,7 @@
+/*
+ * @author: Juan Martos Cuevas
+ */
+
 import 'package:flutter/material.dart';
 import 'package:convall/conversor_pagina_principal.dart';
 

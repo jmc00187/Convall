@@ -1,11 +1,19 @@
+/*
+ * @author: Juan Martos Cuevas
+ */
+
 import 'package:flutter/material.dart';
 import 'dart:ui';
 
 import 'package:convall/pagina_audio.dart';
 import 'package:convall/pagina_imagen.dart';
 import 'package:convall/pagina_video.dart';
-import 'package:convall/pagina_metadatos.dart';
 
+
+
+/// Esta es la página principal de la aplicación.
+/// Contiene un BottomNavigationBar que permite navegar entre diferentes páginas de conversión (video, imagen y audio), ademas
+/// de un botón de refresco que reinicia la página actual.
 
 class ConversorPaginaPrincipal extends StatefulWidget {
   const ConversorPaginaPrincipal({super.key});
@@ -16,6 +24,8 @@ class ConversorPaginaPrincipal extends StatefulWidget {
 }
 
 class ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
+
+  // Colores principales de la aplicación
   static const Color FloralWhite = Color(0xFFFFFCF2);
   static const Color Timberwolf = Color(0xFFCCC5B9);
   static const Color BlackOlive = Color(0xFF403D39);
@@ -33,7 +43,6 @@ class ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
         (key) => paginaVideo(key: key),
         (key) => paginaImagen(key: key),
         (key) => paginaAudio(key: key),
-        (key) => paginaMetadatos(key: key),
   ];
 
   // Lista que almacena las instancias actuales de las páginas con Keys únicas
@@ -48,12 +57,14 @@ class ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
     );
   }
 
+  /// Manejar el cambio de página al tocar un elemento del BottomNavigationBar
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
 
+  /// Reiniciar la página actual generando una nueva instancia de la misma
   void _resetCurrentPage() {
     setState(() {
       _pages[_selectedIndex] = _pageBuilders[_selectedIndex](UniqueKey()); // Reinicia la página actual con una nueva Key
@@ -74,6 +85,7 @@ class ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
           ),
 
 
+          // Botón de refresco
           Positioned(
             top: 70,
             right: 20,
@@ -87,6 +99,7 @@ class ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
 
 
 
+          // BottomNavigationBar para seleccionar la página
           Align(
             alignment: Alignment.bottomCenter,
             child: ClipRRect(
@@ -128,8 +141,6 @@ class ConversorPaginaPrincipalState extends State<ConversorPaginaPrincipal> {
                         icon: Icon(Icons.image), label: 'Imagen'),
                     BottomNavigationBarItem(
                         icon: Icon(Icons.audiotrack_rounded), label: 'Audio'),
-                    BottomNavigationBarItem(
-                        icon: Icon(Icons.account_tree_rounded), label: 'Metadatos'),
                   ],
                 ),
               ),
