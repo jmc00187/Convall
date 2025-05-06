@@ -990,7 +990,7 @@ class _paginaAudioState extends State<paginaAudio> {
                                                   color: Colors.grey.shade700,
                                                 ),
                                               ),
-                                              SizedBox(width: 16), // Add some spacing between the text and the text field
+                                              SizedBox(width: 16),
                                               Expanded(
                                                 child: TextField(
                                                   keyboardType: TextInputType.number,
@@ -999,7 +999,7 @@ class _paginaAudioState extends State<paginaAudio> {
                                                   ),
                                                   onChanged: (value) {
                                                     setState(() {
-                                                      _outputTrimStart = int.tryParse(value) as String?;
+                                                      _outputTrimStart = value;
                                                     });
                                                   },
                                                 ),
@@ -1027,7 +1027,7 @@ class _paginaAudioState extends State<paginaAudio> {
                                                   color: Colors.grey.shade700,
                                                 ),
                                               ),
-                                              SizedBox(width: 16), // Add some spacing between the text and the text field
+                                              SizedBox(width: 16),
                                               Expanded(
                                                 child: TextField(
                                                   keyboardType: TextInputType.number,
@@ -1036,7 +1036,7 @@ class _paginaAudioState extends State<paginaAudio> {
                                                   ),
                                                   onChanged: (value) {
                                                     setState(() {
-                                                      _outputTrimEnd = int.tryParse(value) as String?;
+                                                      _outputTrimEnd = value;
                                                     });
                                                   },
                                                 ),
@@ -1090,7 +1090,7 @@ class _paginaAudioState extends State<paginaAudio> {
                             selectedItemBuilder: (BuildContext context) {
                               return _outputEngines.map((String value) {
                                 return Text(
-                                  'Formato de salida seleccionado: ${value.toUpperCase()}',
+                                  'Motor de conversión seleccionado: ${value.toUpperCase()}',
                                   style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.grey.shade700,
